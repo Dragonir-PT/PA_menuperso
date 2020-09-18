@@ -19,4 +19,6 @@ It have the double job too
  - Make idcard optional with RageUI alternative view
  - Make car key optional
  - Add language manager
- - improve code
+ - Add menu settings for change size, pos and banner color
+ - Improve code
+ 
