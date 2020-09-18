@@ -12,7 +12,15 @@ local Keys = {
 
 Config = {}
 
-Config.ServerName = "Project Alpha"
+Config.TitlePlayerName = false --make the player name as title for all the menu
+
+Config.ServerName = "Project Alpha" --if TitlePlayerName was false, the title was define from this
+
+Config.doubleJob = false
+Config.idCard = false
+Config.useDoubleKey = false
+
+Config.Local = 'fr'
 
 Config.GPS = {
     {label = 'Aucun', coords = nil},

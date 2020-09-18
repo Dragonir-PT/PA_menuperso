@@ -80,6 +80,7 @@ local societymoney, societymoney2 = nil, nil
 local jobList = {}
 local selectedJob = {}
 local grade = {}
+local playergroup
 
 Citizen.CreateThread(function()
     while true do
@@ -128,17 +129,19 @@ RMenu.Add('submenu', 'giveweapon', RageUI.CreateSubMenu(RMenu:Get('submenu', 'we
 RMenu.Add('submenu', 'wallet', RageUI.CreateSubMenu(RMenu:Get('submenu', 'me'), Config.ServerName, "Portefeuille"))
 
 RMenu.Add('submenu', 'bill', RageUI.CreateSubMenu(RMenu:Get('submenu', 'wallet'), Config.ServerName, "Facture"))
-
-RMenu.Add('submenu', 'carkey', RageUI.CreateSubMenu(RMenu:Get('submenu', 'me'), Config.ServerName, "Clés"))
-RMenu.Add('submenu', 'keyaction', RageUI.CreateSubMenu(RMenu:Get('submenu', 'carkey'), Config.ServerName, "Que voulez-vous faire?"))
-
+if Config.useDoubleKey then
+    RMenu.Add('submenu', 'carkey', RageUI.CreateSubMenu(RMenu:Get('submenu', 'me'), Config.ServerName, "Clés"))
+    RMenu.Add('submenu', 'keyaction', RageUI.CreateSubMenu(RMenu:Get('submenu', 'carkey'), Config.ServerName, "Que voulez-vous faire?"))
+end
 RMenu.Add('submenu', 'vehicle', RageUI.CreateSubMenu(RMenu:Get('main', 'menuperso'), Config.ServerName, "Gestion véhicule"))
 
 RMenu.Add('submenu', 'vehinfo', RageUI.CreateSubMenu(RMenu:Get('submenu', 'vehicle'), Config.ServerName, "Information véhicule"))
 
 RMenu.Add('submenu', 'society', RageUI.CreateSubMenu(RMenu:Get('main', 'menuperso'), Config.ServerName, "Gestion entreprise"))
 
-RMenu.Add('submenu', 'gang', RageUI.CreateSubMenu(RMenu:Get('main', 'menuperso'), Config.ServerName, "Gestion organisation"))
+if Config.doubleJob then
+    RMenu.Add('submenu', 'gang', RageUI.CreateSubMenu(RMenu:Get('main', 'menuperso'), Config.ServerName, "Gestion organisation"))
+end
 
 RMenu.Add('submenu', 'admin', RageUI.CreateSubMenu(RMenu:Get('main', 'menuperso'), Config.ServerName, "Administration"))
 RMenu.Add('submenu', 'admintp', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, "TP"))
@@ -146,21 +149,25 @@ RMenu.Add('submenu', 'adminplayer', RageUI.CreateSubMenu(RMenu:Get('submenu', 'a
 RMenu.Add('submenu', 'adminitem', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, "Objet"))
 RMenu.Add('submenu', 'adminjob', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, "Job"))
 RMenu.Add('submenu', 'adminjobgrade', RageUI.CreateSubMenu(RMenu:Get('submenu', 'adminjob'), Config.ServerName, "Grade"))
-RMenu.Add('submenu', 'admingang', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, "Gang"))
-RMenu.Add('submenu', 'adminganggrade', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admingang'), Config.ServerName, "Grade"))
+if Config.doubleJob then
+    RMenu.Add('submenu', 'admingang', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, "Gang"))
+    RMenu.Add('submenu', 'adminganggrade', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admingang'), Config.ServerName, "Grade"))
+end
 RMenu.Add('submenu', 'admincar', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, "Véhicule"))
 RMenu.Add('submenu', 'adminmisc', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, "Autre"))
 
 ---Key manager
 Keys.Register('F5', 'open_menuperso', 'Menu Personnel', function()
-    ESX.TriggerServerCallback('PA_menuperso:getName', function(name)
-        for k,_ in pairs(RMenu:GetType('main')) do
-             RMenu:GetType('main')[k].Menu:SetTitle(name)
-        end
-        for k,_ in pairs(RMenu:GetType('submenu')) do
-            RMenu:GetType('submenu')[k].Menu:SetTitle(name)
-        end
-    end)
+    if Config.TitlePlayerName then
+        ESX.TriggerServerCallback('PA_menuperso:getName', function(name)
+            for k,_ in pairs(RMenu:GetType('main')) do
+                RMenu:GetType('main')[k].Menu:SetTitle(name)
+            end
+            for k,_ in pairs(RMenu:GetType('submenu')) do
+                RMenu:GetType('submenu')[k].Menu:SetTitle(name)
+            end
+        end)
+    end
     ESX.TriggerServerCallback('PA_menuperso:getUsergroup', function(group)
         playergroup = group
     end)
@@ -179,7 +186,7 @@ end)
     elseif ESX.PlayerData.job.name == 'farm' then
         TriggerEvent('PT_menuperso:farmMobile')
     else
-        Visual.Popup({message = "~r~Votre métier n'a pas de menu enregistrer"})
+        Visual.Popup(_U('job_not_register')
     end
 end)]]
 
@@ -194,7 +201,6 @@ end)
 Keys.Register('F2', 'openRadio', "Radio", function()
     TriggerEvent('PT_menuperso:openRadio')
 end)]]
-
 
 Keys.Register('Y', 'car_lock', "Ouvrir / fermer véhicule", function()
     TriggerEvent('PT_menuperso:carLock')
@@ -249,14 +255,16 @@ Citizen.CreateThread(function()
             RageUI.List("GPS", Menu.GPS.Data, Menu.GPS.index or 1, nil, {}, true, {
                 onListChange = function(index)
                     Menu.GPS.index = index
+                    if index > #Config.GPS then
+                        Menu.GPS.index = 1
+                    end
                 end,
                 onSelected = function(index)
-                    if index == 1 or index > 9 then
+                    Visual.Popup("GPS: ~b~".. Config.GPS[index].label)
+                    if index == 1 then
                         DeleteWaypoint()
-                        Visual.Popup("GPS: ".. Config.GPS[1].label)
-                    elseif index ~= 1 then
+                    else
                         SetNewWaypoint(Config.GPS[index].coords)
-                        Visual.Popup("GPS: ".. Config.GPS[index].label)
                     end
                 end
             })
@@ -268,8 +276,10 @@ Citizen.CreateThread(function()
             if ESX.PlayerData.job.grade_name == 'boss' then
                 RageUI.Button("Gestion entreprise", nil, {RightLabel = ESX.PlayerData.job.label}, true, {}, RMenu:Get('submenu', 'society'))
             end
-            if ESX.PlayerData.job2.grade_name == 'boss' then
-                RageUI.Button("Gestion organisation", nil, {RightLabel = ESX.PlayerData.job2.label}, true, {}, RMenu:Get('submenu', 'gang'))
+            if Config.doubleJob then
+                if ESX.PlayerData.job2.grade_name == 'boss' then
+                    RageUI.Button("Gestion organisation", nil, {RightLabel = ESX.PlayerData.job2.label}, true, {}, RMenu:Get('submenu', 'gang'))
+                end
             end
             RageUI.Button("Sauvegarder la position", nil, {}, true, {
                 onSelected = function()
@@ -281,10 +291,12 @@ Citizen.CreateThread(function()
                 RageUI.Button("Administration", nil, {}, true, {}, RMenu:Get('submenu', 'admin'))
             end
         end)
-            RageUI.IsVisible(RMenu:Get('submenu', 'me'), function()
-                RageUI.Button("Inventaire", nil, {}, true, {}, RMenu:Get('submenu', 'inventory'))
-                RageUI.Button("Armes", nil, {}, true, {}, RMenu:Get('submenu', 'weapon'))
-                RageUI.Button("Portefeuille", nil, {}, true, {}, RMenu:Get('submenu', 'wallet'))
+
+        RageUI.IsVisible(RMenu:Get('submenu', 'me'), function()
+            RageUI.Button("Inventaire", nil, {}, true, {}, RMenu:Get('submenu', 'inventory'))
+            RageUI.Button("Armes", nil, {}, true, {}, RMenu:Get('submenu', 'weapon'))
+            RageUI.Button("Portefeuille", nil, {}, true, {}, RMenu:Get('submenu', 'wallet'))
+            if Config.useDoubleKey then
                 RageUI.Button("Clés", nil, {}, true, {
                     onSelected = function()
                         ESX.TriggerServerCallback('PA_menuperso:getKey', function(key)
@@ -292,706 +304,655 @@ Citizen.CreateThread(function()
                         end)
                     end
                 }, RMenu:Get('submenu', 'carkey'))
+
+            end
+        end)
+
+        RageUI.IsVisible(RMenu:Get('submenu', 'inventory'), function()
+            ESX.PlayerData = ESX.GetPlayerData()
+            ESX.TriggerServerCallback('PA_menuperso:getPlayerWeight', function(weight)
+                Menu.Inventory.weight = weight/1000
             end)
-                RageUI.IsVisible(RMenu:Get('submenu', 'inventory'), function()
-                    ESX.PlayerData = ESX.GetPlayerData()
-                    ESX.TriggerServerCallback('PA_menuperso:getPlayerWeight', function(weight)
-                        Menu.Inventory.weight = weight/1000
-                    end)
-                    for i=1, #ESX.PlayerData.inventory, 1 do
-                        local inventory = ESX.PlayerData.inventory[i]
-                        if inventory.count > 0 then
-                            RageUI.Button(inventory.label..' ('..inventory.count..")", Menu.Inventory.weight.."kg/"..Menu.Inventory.maxWeight/1000 .."kg", {}, true, {
-                                onSelected = function()
-                                    Menu.Inventory.itemSelected = inventory
-                                end
-                            }, RMenu:Get('submenu', 'invaction'))
+            for i=1, #ESX.PlayerData.inventory, 1 do
+                local inventory = ESX.PlayerData.inventory[i]
+                if inventory.count > 0 then
+                    RageUI.Button(inventory.label..' ('..inventory.count..")", Menu.Inventory.weight.."kg/"..Menu.Inventory.maxWeight/1000 .."kg", {}, true, {
+                        onSelected = function()
+                            Menu.Inventory.itemSelected = inventory
                         end
-                    end
+                    }, RMenu:Get('submenu', 'invaction'))
+                end
+            end
+        end)
+        RageUI.IsVisible(RMenu:Get('submenu', 'invaction'), function()
+            if Menu.Inventory.itemSelected.count == 0 then
+                RageUI.GoBack()
+                ESX.TriggerServerCallback('PA_menuperso:getPlayerWeight', function(weight)
+                    Menu.Inventory.weight = weight
                 end)
-                    RageUI.IsVisible(RMenu:Get('submenu', 'invaction'), function()
-                        if Menu.Inventory.itemSelected.count == 0 then
-                            RageUI.GoBack()
-                            ESX.TriggerServerCallback('PA_menuperso:getPlayerWeight', function(weight)
-                                Menu.Inventory.weight = weight
-                            end)
-                        end
-                        RageUI.Button("Utiliser", nil, {}, true, {
-                            onSelected = function()
-                                if Menu.Inventory.itemSelected.usable then
-                                    TriggerServerEvent('esx:useItem', Menu.Inventory.itemSelected.name)
-                                    Menu.Inventory.itemSelected.count = Menu.Inventory.itemSelected.count - 1
+            end
+            RageUI.Button("Utiliser", nil, {}, true, {
+                onSelected = function()
+                    if Menu.Inventory.itemSelected.usable then
+                        TriggerServerEvent('esx:useItem', Menu.Inventory.itemSelected.name)
+                        Menu.Inventory.itemSelected.count = Menu.Inventory.itemSelected.count - 1
+                    else
+                        Visual.Popup(Menu.Inventory.itemSelected.label .. " n'est pas utilisable")
+                    end
+                end
+            })
+            RageUI.Button("Donner", nil, {}, true, {}, RMenu:Get('submenu', 'give'))
+            RageUI.Button("Jeter", nil, {RightBadge = RageUI.BadgeStyle.Alert}, true, {
+                onSelected = function()
+                    if Menu.Inventory.itemSelected.canRemove == 1 then
+                        if not IsPedSittingInAnyVehicle(plyPed) then
+                            local post, quantity = CheckQuantity(KeyboardInput("Quantité", '', 7))
+                            if post then
+                                if quantity ~= nil or quantity > 0 and quantity <= Menu.Inventory.itemSelected.count then
+                                    TriggerServerEvent('esx:removeInventoryItem', 'item_standard', Menu.Inventory.itemSelected.name, quantity)
+                                    RageUI.CloseAll()
+                                    currentWeight = 0
+                                    Citizen.Wait(100)
                                 else
-                                    Visual.Popup(Menu.Inventory.itemSelected.label .. " n'est pas utilisable")
-                                end
-                            end
-                        })
-                        RageUI.Button("Donner", nil, {}, true, {}, RMenu:Get('submenu', 'give'))
-                        RageUI.Button("Jeter", nil, {RightBadge = RageUI.BadgeStyle.Alert}, true, {
-                            onSelected = function()
-                                if Menu.Inventory.itemSelected.canRemove == 1 then
-                                    if not IsPedSittingInAnyVehicle(plyPed) then
-                                        local post, quantity = CheckQuantity(KeyboardInput("Quantité", '', 7))
-                                        if post then
-                                            if quantity ~= nil or quantity > 0 and quantity <= Menu.Inventory.itemSelected.count then
-                                                TriggerServerEvent('esx:removeInventoryItem', 'item_standard', Menu.Inventory.itemSelected.name, quantity)
-                                                RageUI.CloseAll()
-                                                currentWeight = 0
-                                                Citizen.Wait(100)
-                                            else
-                                                Visual.Popup("Montant invalide")
-                                            end
-                                        else
-                                            Visual.Popup("Entrée invalide")
-                                        end
-                                    else
-                                        Visual.Popup(Menu.Inventory.itemSelected.label .. " ne peux pas être jeter depuis une voiture")
-                                    end
-                                else
-                                    Visual.Popup(Menu.Inventory.itemSelected.label .. " ne peux pas être jeter")
-                                end
-                            end
-                        })
-                    end)
-                        RageUI.IsVisible(RMenu:Get('submenu', 'give'), function()
-                            local playersNearby = ESX.Game.GetPlayersInArea(GetEntityCoords(PlayerPedId()), 3.0)
-                            local invCount = {}
-                            for i=1, Menu.Inventory.itemSelected.count, 1 do
-                                table.insert(invCount, i)
-                            end
-                            RageUI.List(Menu.Inventory.itemSelected.label.." ("..Menu.Inventory.itemSelected.count..")", invCount, Menu.Inventory.index or 1, nil, {}, true, {
-                                onListChange = function(index)
-                                    Menu.Inventory.index = index
-                                end,
-                                onSelected = function()
-                                    local post, quantity = CheckQuantity(KeyboardInput("Montant", '', 7))
-                                    if post then
-                                        if quantity > 0 and quantity <= Menu.Inventory.itemSelected.count and quantity ~= nil then
-                                            Menu.Inventory.itemIndex[Menu.Inventory.itemSelected.name] = quantity
-                                        else
-                                            Visual.Popup("Montant invalide")
-                                        end
-                                    else
-                                        Visual.Popup("Entrée invalide")
-                                    end
-                                end
-                            })
-                            if #playersNearby > 0 then
-                                for _=1, #playersNearby, 1 do
-                                    if Menu.Inventory.itemIndex[Menu.Inventory.itemSelected.name] > 0 and Menu.Inventory.itemIndex[Menu.Inventory.itemSelected.name] ~= nil then
-                                        local players = {}
-                                        for _,playerNearby in ipairs(playersNearby) do
-                                            players[GetPlayerServerId(playerNearby)] = true
-                                        end
-                                        ESX.TriggerServerCallback('esx:getPlayerNames', function(returnedPlayers)
-                                            playerRetuned = returnedPlayers
-                                        end, players)
-                                        for playerId,playerName in pairs(playerRetuned) do
-                                            RageUI.Button(playerName, nil, {}, true, {
-                                                onSelected = function()
-                                                    if Menu.Inventory.itemSelected.rare == 0 then
-                                                        local selectedPlayer = GetPlayerFromServerId(playerId)
-                                                        local selectedPlayerPed = GetPlayerPed(selectedPlayer)
-                                                        if not IsPedSittingInAnyVehicle(selectedPlayerPed) then
-                                                            if Menu.Inventory.itemIndex[Menu.Inventory.itemSelected.name] ~= nil and Menu.Inventory.itemSelected.count > 0 then
-                                                                TriggerServerEvent('esx:giveInventoryItem', playerId, 'item_standard', Menu.Inventory.itemSelected.name, Menu.Inventory.index)
-                                                                RageUI.CloseAll()
-                                                            else
-                                                                Visual.Popup({message = "Montant invalide"})
-                                                            end
-                                                        else
-                                                            Visual.Popup({message = "Vous ne pouvez pas donner ~y~"..Menu.Inventory.itemSelected.label.."~s~ dans une voiture"})
-                                                        end
-                                                    else
-                                                        Visual.Popup({message = "Vous ne pouvez pas donner cette objet"})
-                                                    end
-                                                end
-                                            })
-                                        end
-                                    end
+                                    Visual.Popup("Montant invalide")
                                 end
                             else
-                                RageUI.Button("Personne à proximité", nil, {}, true, {})
+                                Visual.Popup("Entrée invalide")
                             end
-                        end)
-                RageUI.IsVisible(RMenu:Get('submenu', 'weapon'), function()
-                    local weaponList = ESX.GetWeaponList()
-                    for i=1, #weaponList, 1 do
-                        local weaponHash = GetHashKey(weaponList[i].name)
-                        local ammo = GetAmmoInPedWeapon(PlayerPedId(), weaponHash)
-                        if HasPedGotWeapon(PlayerPedId(), weaponHash, false) and weaponList[i].name ~= 'WEAPON_UNARMED' then
-                            RageUI.Button(weaponList[i].label.." ("..ammo..")", nil, {}, true, {
+                        else
+                            Visual.Popup(Menu.Inventory.itemSelected.label .. " ne peux pas être jeter depuis une voiture")
+                        end
+                    else
+                        Visual.Popup(Menu.Inventory.itemSelected.label .. " ne peux pas être jeter")
+                    end
+                end
+            })
+        end)
+        RageUI.IsVisible(RMenu:Get('submenu', 'give'), function()
+            local playersNearby = ESX.Game.GetPlayersInArea(GetEntityCoords(PlayerPedId()), 3.0)
+            local invCount = {}
+            for i=1, Menu.Inventory.itemSelected.count, 1 do
+                table.insert(invCount, i)
+            end
+            RageUI.List(Menu.Inventory.itemSelected.label.." ("..Menu.Inventory.itemSelected.count..")", invCount, Menu.Inventory.index or 1, nil, {}, true, {
+                onListChange = function(index)
+                    Menu.Inventory.index = index
+                end,
+                onSelected = function()
+                    local post, quantity = CheckQuantity(KeyboardInput("Montant", '', 7))
+                    if post then
+                        if quantity > 0 and quantity <= Menu.Inventory.itemSelected.count and quantity ~= nil then
+                            Menu.Inventory.itemIndex[Menu.Inventory.itemSelected.name] = quantity
+                        else
+                            Visual.Popup("Montant invalide")
+                        end
+                    else
+                        Visual.Popup("Entrée invalide")
+                    end
+                end
+            })
+            if #playersNearby > 0 then
+                for _=1, #playersNearby, 1 do
+                    if Menu.Inventory.itemIndex[Menu.Inventory.itemSelected.name] > 0 and Menu.Inventory.itemIndex[Menu.Inventory.itemSelected.name] ~= nil then
+                        local players = {}
+                        for _,playerNearby in ipairs(playersNearby) do
+                            players[GetPlayerServerId(playerNearby)] = true
+                        end
+                        ESX.TriggerServerCallback('esx:getPlayerNames', function(returnedPlayers)
+                            playerRetuned = returnedPlayers
+                        end, players)
+                        for playerId,playerName in pairs(playerRetuned) do
+                            RageUI.Button(playerName, nil, {}, true, {
                                 onSelected = function()
-                                    Menu.Loadout.weaponSelected = weaponList[i]
-                                    Menu.Loadout.ammo = ammo
-                                end
-                            }, RMenu:Get('submenu', 'weaponaction'))
-                        end
-                    end
-                end)
-                    RageUI.IsVisible(RMenu:Get('submenu', 'weaponaction'), function()
-                        local desc = Menu.Loadout.weaponSelected.label.." ("..Menu.Loadout.ammo..")"
-                        RageUI.Button("Donner", desc, {}, true, {
-                            onSelected = function()
-                                local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
-                                if closestPlayer ~= -1 and closestDistance < 3.0 then
-                                    TriggerServerEvent('esx:giveInventoryItem', GetPlayerServerId(closestPlayer), 'item_weapon', Menu.Loadout.weaponSelected.name, Menu.Loadout.ammo)
-                                else
-                                    Visual.Popup("Personne à proximité")
-                                end
-                            end
-                        }, RMenu:Get('submenu', 'giveweapon'))
-                        RageUI.Button("Jeter", desc, {RightBadge = RageUI.BadgeStyle.Alert}, true, {
-                            onSelected = function()
-                                if not IsPedSittingInAnyVehicle(PlayerPedId()) then
-                                    print(Menu.Loadout.weaponSelected.name, Menu.Loadout.ammo)
-                                    TriggerServerEvent('esx:removeInventoryItem', 'item_weapon', Menu.Loadout.weaponSelected.name, Menu.Loadout.ammo)
-                                    RageUI.CloseAll()
-                                else
-                                    Visual.Popup(Menu.Loadout.weaponSelected.label.." ne peux pas être jeter depuis une voiture")
-                                end
-                            end
-                        })
-                    end)
-                RageUI.IsVisible(RMenu:Get('submenu', 'wallet'), function()
-                    ESX.PlayerData = ESX.GetPlayerData()
-                    RageUI.Button("Métier : "..ESX.PlayerData.job.label.." - "..ESX.PlayerData.job.grade_label, nil, {}, true, {})
-                    RageUI.Button("Organisation : "..ESX.PlayerData.job2.label.." - "..ESX.PlayerData.job2.grade_label, nil, {}, true, {})
-                    for i=1, #ESX.PlayerData.accounts, 1 do
-                        if ESX.PlayerData.accounts[i].name == 'money' then
-                            RageUI.List(ESX.PlayerData.accounts[i].label.." : ~g~"..ESX.PlayerData.accounts[i].money.."$", Menu.Wallet.List, Menu.Wallet.indexMoney or 1, nil, {}, true, {
-                                onListChange = function(index)
-                                    Menu.Wallet.indexMoney = index
-                                end,
-                                onSelected = function(index)
-                                    if index == 1 then
-                                        local post, quantity = CheckQuantity(KeyboardInput("Quantité", '', 8))
-                                        if post then
-                                            local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
-                                            if closestDistance ~= -1 and closestDistance <= 3 then
-                                                local closestPed = GetPlayerPed(closestPlayer)
-                                                if not IsPedSittingInAnyVehicle(closestPed) then
-                                                    TriggerServerEvent('esx:giveInventoryItem', GetPlayerServerId(closestPlayer), 'item_account', ESX.PlayerData.accounts[i].name, quantity)
-                                                    RageUI.CloseAll()
-                                                else
-                                                    Visual.Popup("Vous ne pouvez pas donner "..ESX.PlayerData.accounts[i].label.." dans une voiture")
-                                                end
-                                            else
-                                                Visual.Popup("Personne à proximité")
-                                            end
-                                        else
-                                            Visual.Popup("Montant invalide")
-                                        end
-                                    elseif index == 2 then
-                                        local post, quantity = CheckQuantity(KeyboardInput("Quantité", '', 8))
-                                        if post then
-                                            if not IsPedSittingInAnyVehicle(plyPed) then
-                                                TriggerServerEvent('esx:removeInventoryItem', 'item_account', ESX.PlayerData.accounts[i].name, quantity)
+                                    if Menu.Inventory.itemSelected.rare == 0 then
+                                        local selectedPlayer = GetPlayerFromServerId(playerId)
+                                        local selectedPlayerPed = GetPlayerPed(selectedPlayer)
+                                        if not IsPedSittingInAnyVehicle(selectedPlayerPed) then
+                                            if Menu.Inventory.itemIndex[Menu.Inventory.itemSelected.name] ~= nil and Menu.Inventory.itemSelected.count > 0 then
+                                                TriggerServerEvent('esx:giveInventoryItem', playerId, 'item_standard', Menu.Inventory.itemSelected.name, Menu.Inventory.index)
                                                 RageUI.CloseAll()
                                             else
-                                                Visual.Popup("Vous ne pouvez pas jeter "..ESX.PlayerData.accounts[i].label.." dans une voiture")
+                                                Visual.Popup({message = "Montant invalide"})
                                             end
                                         else
-                                            Visual.Popup("Montant invalide")
+                                            Visual.Popup({message = "Vous ne pouvez pas donner ~y~"..Menu.Inventory.itemSelected.label.."~s~ dans une voiture"})
                                         end
-                                    end
-                                end
-                            })
-                        elseif ESX.PlayerData.accounts[i].name == 'black_money' then
-                            RageUI.List(ESX.PlayerData.accounts[i].label.." : ~r~"..ESX.PlayerData.accounts[i].money.."$", Menu.Wallet.List, Menu.Wallet.indexBlack or 1, nil, {}, true, {
-                                onListChange = function(index)
-                                    Menu.Wallet.indexBlack = index
-                                end,
-                                onSelected = function(index)
-                                    if index == 1 then
-                                        local post, quantity = CheckQuantity(KeyboardInput("Quantité", '', 8))
-                                        if post then
-                                            local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
-                                            if closestDistance ~= -1 and closestDistance <= 3 then
-                                                local closestPed = GetPlayerPed(closestPlayer)
-                                                if not IsPedSittingInAnyVehicle(closestPed) then
-                                                    TriggerServerEvent('esx:giveInventoryItem', GetPlayerServerId(closestPlayer), 'item_account', ESX.PlayerData.accounts[i].name, quantity)
-                                                    RageUI.CloseAll()
-                                                else
-                                                    Visual.Popup("Vous ne pouvez pas donner "..ESX.PlayerData.accounts[i].label.." dans une voiture")
-                                                end
-                                            else
-                                                Visual.Popup("Personne à proximité")
-                                            end
-                                        else
-                                            Visual.Popup("Montant invalide")
-                                        end
-                                    elseif index == 2 then
-                                        local post, quantity = CheckQuantity(KeyboardInput("Quantité", '', 8))
-                                        if post then
-                                            if not IsPedSittingInAnyVehicle(plyPed) then
-                                                TriggerServerEvent('esx:removeInventoryItem', 'item_account', ESX.PlayerData.accounts[i].name, quantity)
-                                                RageUI.CloseAll()
-                                            else
-                                                Visual.Popup("Vous ne pouvez pas jeter "..ESX.PlayerData.accounts[i].label.." dans une voiture")
-                                            end
-                                        else
-                                            Visual.Popup("Montant invalide")
-                                        end
-                                    end
-                                end
-                            })
-                        elseif ESX.PlayerData.accounts[i].name == 'gold' then
-                            RageUI.List(ESX.PlayerData.accounts[i].label.." : ~y~"..ESX.PlayerData.accounts[i].money, Menu.Wallet.List, Menu.Wallet.indexGold or 1, nil, {}, true, {
-                                onListChange = function(index)
-                                    Menu.Wallet.indexGold = index
-                                end,
-                                onSelected = function(index)
-                                    if index == 1 then
-                                        local post, quantity = CheckQuantity(KeyboardInput("Quantité", '', 8))
-                                        if post then
-                                            local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
-                                            if closestDistance ~= -1 and closestDistance <= 3 then
-                                                local closestPed = GetPlayerPed(closestPlayer)
-                                                if not IsPedSittingInAnyVehicle(closestPed) then
-                                                    TriggerServerEvent('esx:giveInventoryItem', GetPlayerServerId(closestPlayer), 'item_account', ESX.PlayerData.accounts[i].name, quantity)
-                                                    RageUI.CloseAll()
-                                                else
-                                                    Visual.Popup("Vous ne pouvez pas donner "..ESX.PlayerData.accounts[i].label.." dans une voiture")
-                                                end
-                                            else
-                                                Visual.Popup("Personne à proximité")
-                                            end
-                                        else
-                                            Visual.Popup("Montant invalide")
-                                        end
-                                    elseif index == 2 then
-                                        Visual.Popup("Vous ne pouvez pas jeter votre or")
+                                    else
+                                        Visual.Popup({message = "Vous ne pouvez pas donner cette objet"})
                                     end
                                 end
                             })
                         end
                     end
-                    RageUI.Button("Facture", nil, {}, true, {
+                end
+            else
+                RageUI.Button("Personne à proximité", nil, {}, true, {})
+            end
+        end)
+
+        RageUI.IsVisible(RMenu:Get('submenu', 'weapon'), function()
+            local weaponList = ESX.GetWeaponList()
+            for i=1, #weaponList, 1 do
+                local weaponHash = GetHashKey(weaponList[i].name)
+                local ammo = GetAmmoInPedWeapon(PlayerPedId(), weaponHash)
+                if HasPedGotWeapon(PlayerPedId(), weaponHash, false) and weaponList[i].name ~= 'WEAPON_UNARMED' then
+                    RageUI.Button(weaponList[i].label.." ("..ammo..")", nil, {}, true, {
                         onSelected = function()
-                            ESX.TriggerServerCallback('PA_menuperso:Bill_getBills', function(bills)
-                                Menu.Wallet.Bill = bills
-                            end)
+                            Menu.Loadout.weaponSelected = weaponList[i]
+                            Menu.Loadout.ammo = ammo
                         end
-                    }, RMenu:Get('submenu', 'bill'))
-                    RageUI.List("Papier", Menu.Wallet.Paper.List, Menu.Wallet.Paper.index or 1, nil, {}, true, {
+                    }, RMenu:Get('submenu', 'weaponaction'))
+                end
+            end
+        end)
+        RageUI.IsVisible(RMenu:Get('submenu', 'weaponaction'), function()
+            local desc = Menu.Loadout.weaponSelected.label.." ("..Menu.Loadout.ammo..")"
+            RageUI.Button("Donner", desc, {}, true, {
+                onSelected = function()
+                    local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
+                    if closestPlayer ~= -1 and closestDistance < 3.0 then
+                        TriggerServerEvent('esx:giveInventoryItem', GetPlayerServerId(closestPlayer), 'item_weapon', Menu.Loadout.weaponSelected.name, Menu.Loadout.ammo)
+                    else
+                        Visual.Popup("Personne à proximité")
+                    end
+                end
+            }, RMenu:Get('submenu', 'giveweapon'))
+            RageUI.Button("Jeter", desc, {RightBadge = RageUI.BadgeStyle.Alert}, true, {
+                onSelected = function()
+                    if not IsPedSittingInAnyVehicle(PlayerPedId()) then
+                        print(Menu.Loadout.weaponSelected.name, Menu.Loadout.ammo)
+                        TriggerServerEvent('esx:removeInventoryItem', 'item_weapon', Menu.Loadout.weaponSelected.name, Menu.Loadout.ammo)
+                        RageUI.CloseAll()
+                    else
+                        Visual.Popup(Menu.Loadout.weaponSelected.label.." ne peux pas être jeter depuis une voiture")
+                    end
+                end
+            })
+        end)
+
+        RageUI.IsVisible(RMenu:Get('submenu', 'wallet'), function()
+            ESX.PlayerData = ESX.GetPlayerData()
+            RageUI.Button("Métier : "..ESX.PlayerData.job.label.." - "..ESX.PlayerData.job.grade_label, nil, {}, true, {})
+            if Config.doubleJob then
+                RageUI.Button("Organisation : "..ESX.PlayerData.job2.label.." - "..ESX.PlayerData.job2.grade_label, nil, {}, true, {})
+            end
+            for i=1, #ESX.PlayerData.accounts, 1 do
+                if ESX.PlayerData.accounts[i].name == 'money' then
+                    RageUI.List(ESX.PlayerData.accounts[i].label.." : ~g~"..ESX.PlayerData.accounts[i].money.."$", Menu.Wallet.List, Menu.Wallet.indexMoney or 1, nil, {}, true, {
                         onListChange = function(index)
-                            Menu.Wallet.Paper.index = index
+                            Menu.Wallet.indexMoney = index
                         end,
                         onSelected = function(index)
                             if index == 1 then
-                                local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
-
-                                if closestDistance ~= -1 and closestDistance <= 3.0 then
-                                    TriggerServerEvent('jsfour-idcard:open', GetPlayerServerId(PlayerId()), GetPlayerServerId(closestPlayer))
+                                local post, quantity = CheckQuantity(KeyboardInput("Quantité", '', 8))
+                                if post then
+                                    local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
+                                    if closestDistance ~= -1 and closestDistance <= 3 then
+                                        local closestPed = GetPlayerPed(closestPlayer)
+                                        if not IsPedSittingInAnyVehicle(closestPed) then
+                                            TriggerServerEvent('esx:giveInventoryItem', GetPlayerServerId(closestPlayer), 'item_account', ESX.PlayerData.accounts[i].name, quantity)
+                                            RageUI.CloseAll()
+                                        else
+                                            Visual.Popup("Vous ne pouvez pas donner "..ESX.PlayerData.accounts[i].label.." dans une voiture")
+                                        end
+                                    else
+                                        Visual.Popup("Personne à proximité")
+                                    end
                                 else
-                                    Visual.Popup("Personne à proximité")
+                                    Visual.Popup("Montant invalide")
                                 end
                             elseif index == 2 then
-                                TriggerServerEvent('jsfour-idcard:open', GetPlayerServerId(PlayerId()), GetPlayerServerId(PlayerId()))
-                            elseif index == 3 then
-                                local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
-
-                                if closestDistance ~= -1 and closestDistance <= 3.0 then
-                                    TriggerServerEvent('jsfour-idcard:open', GetPlayerServerId(PlayerId()), GetPlayerServerId(closestPlayer), 'driver')
+                                local post, quantity = CheckQuantity(KeyboardInput("Quantité", '', 8))
+                                if post then
+                                    if not IsPedSittingInAnyVehicle(plyPed) then
+                                        TriggerServerEvent('esx:removeInventoryItem', 'item_account', ESX.PlayerData.accounts[i].name, quantity)
+                                        RageUI.CloseAll()
+                                    else
+                                        Visual.Popup("Vous ne pouvez pas jeter "..ESX.PlayerData.accounts[i].label.." dans une voiture")
+                                    end
                                 else
-                                    Visual.Popup("Personne à proximité")
+                                    Visual.Popup("Montant invalide")
                                 end
-                            elseif index == 4 then
-                                TriggerServerEvent('jsfour-idcard:open', GetPlayerServerId(PlayerId()), GetPlayerServerId(PlayerId()), 'driver')
-                            elseif index == 5 then
-                                local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
-
-                                if closestDistance ~= -1 and closestDistance <= 3.0 then
-                                    TriggerServerEvent('jsfour-idcard:open', GetPlayerServerId(PlayerId()), GetPlayerServerId(closestPlayer), 'weapon')
-                                else
-                                    Visual.Popup("Personne à proximité")
-                                end
-                            elseif index == 6 then
-                                TriggerServerEvent('jsfour-idcard:open', GetPlayerServerId(PlayerId()), GetPlayerServerId(PlayerId()), 'weapon')
                             end
                         end
                     })
-                end)
-                    RageUI.IsVisible(RMenu:Get('submenu', 'bill'), function()
-                        for i=1, #Menu.Wallet.Bill, 1 do
-                            RageUI.Button(Menu.Wallet.Bill[i].label, nil, {RightLabel = Menu.Wallet.Bill[i].amount.."$"}, true, {
-                                onSelected = function()
-                                    ESX.TriggerServerCallback('esx_billing:payBill', function()
-                                        ESX.TriggerServerCallback('PA_menuperso:Bill_getBills', function(bills)
-                                            Menu.Wallet.Bill = bills
-                                        end)
-                                    end, Menu.Wallet.Bill[i].id)
-                                end
-                            })
-                        end
-                    end)
-                RageUI.IsVisible(RMenu:Get('submenu', 'carkey'), function()
-                    for i=1, #Menu.CarKey, 1 do
-                        RageUI.Button(Menu.CarKey[i].label.." - "..Menu.CarKey[i].value, nil, {}, true, {
-                            onSelected = function()
-                                Menu.CarKeySelected = Menu.CarKey[i].value
-                            end
-                        }, RMenu:Get('submenu', 'keyaction'))
-                    end
-                end)
-                    RageUI.IsVisible(RMenu:Get('submenu', 'keyaction'), function()
-                        local player, distance = ESX.Game.GetClosestPlayer()
-                        local playerPed = GetPlayerPed(-1)
-                        local coords    = GetEntityCoords(playerPed, true)
-                        local vehicle = GetClosestVehicle(coords.x, coords.y, coords.z, 7.0, 0, 71)
-                        local vehicleProps = ESX.Game.GetVehicleProperties(vehicle)
-                        RageUI.Button("Faire un double", nil, {}, true, {
-                            onSelected = function()
-                                RageUI.CloseAll()
-                                if distance ~= -1 and distance <= 3.0 then
-                                    TriggerServerEvent('esx_vehiclelock:preterkey', GetPlayerServerId(player), Menu.CarKeySelected)
-                                end
-                            end
-                        })
-                        RageUI.Button("Donner les clés", nil, {}, true, {
-                            onSelected = function()
-                                RageUI.CloseAll()
-                                if distance ~= -1 and distance <= 3.0 then
-                                    TriggerServerEvent('esx_vehiclelock:donnerkey', GetPlayerServerId(player), Menu.CarKeySelected)
-                                    TriggerServerEvent('esx_vehiclelock:deletekey', Menu.CarKeySelected)
-                                    TriggerServerEvent('esx_vehiclelock:changeowner', GetPlayerServerId(player), vehicleProps)
-                                end
-                            end
-                        })
-                        RageUI.Button("Jeter", nil, {RightBadge = RageUI.BadgeStyle.Alert}, true, {
-                            onSelected = function()
-                                RageUI.CloseAll()
-                                TriggerServerEvent('esx_vehiclelock:deletekey', Menu.CarKeySelected)
-                            end
-                        })
-                    end)
-            RageUI.IsVisible(RMenu:Get('submenu', 'vehicle'), function()
-                local plyPed = PlayerPedId()
-                RageUI.Button("Information véhicule", nil, {}, true, {}, RMenu:Get('submenu', 'vehinfo'))
-                RageUI.Button("~g~Allumer~s~/~r~Éteindre~s~ le moteur", nil, {}, true,{
-                    onSelected = function()
-                        if not IsPedSittingInAnyVehicle(GetPlayerPed(-1)) then
-                            Visual.Popup("Vous devez être dans un véhicule")
-                        elseif IsPedSittingInAnyVehicle(GetPlayerPed(-1)) then
-                            local plyVeh = GetVehiclePedIsIn(plyPed, false)
-
-                            if GetIsVehicleEngineRunning(plyVeh) then
-                                SetVehicleEngineOn(plyVeh, false, false, true)
-                                SetVehicleUndriveable(plyVeh, true)
-                            elseif not GetIsVehicleEngineRunning(plyVeh) then
-                                SetVehicleEngineOn(plyVeh, true, false, true)
-                                SetVehicleUndriveable(plyVeh, false)
-                            end
-                        end
-                    end
-                })
-                RageUI.List("~g~Ouvrir~s~/~r~Fermer~s~ la porte", Menu.Vehicle.Door.List, Menu.Vehicle.Door.index or 1, nil, {}, true, {
-                    onListChange = function(index)
-                        Menu.Vehicle.Door.index = index
-                    end,
-                    onSelected = function(index)
-                        if not IsPedSittingInAnyVehicle(plyPed) then
-                            Visual.Popup("Vous devez être dans un véhicule")
-                        elseif IsPedSittingInAnyVehicle(plyPed) then
-                            local plyVeh = GetVehiclePedIsIn(plyPed, false)
-
+                elseif ESX.PlayerData.accounts[i].name == 'black_money' then
+                    RageUI.List(ESX.PlayerData.accounts[i].label.." : ~r~"..ESX.PlayerData.accounts[i].money.."$", Menu.Wallet.List, Menu.Wallet.indexBlack or 1, nil, {}, true, {
+                        onListChange = function(index)
+                            Menu.Wallet.indexBlack = index
+                        end,
+                        onSelected = function(index)
                             if index == 1 then
-                                if not Menu.Vehicle.Door.State.FrontLeft then
-                                    Menu.Vehicle.Door.State.FrontLeft = true
-                                    SetVehicleDoorOpen(plyVeh, 0, false, false)
-                                elseif  Menu.Vehicle.Door.State.FrontLeft then
-                                    Menu.Vehicle.Door.State.FrontLeft = false
-                                    SetVehicleDoorShut(plyVeh, 0, false, false)
+                                local post, quantity = CheckQuantity(KeyboardInput("Quantité", '', 8))
+                                if post then
+                                    local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
+                                    if closestDistance ~= -1 and closestDistance <= 3 then
+                                        local closestPed = GetPlayerPed(closestPlayer)
+                                        if not IsPedSittingInAnyVehicle(closestPed) then
+                                            TriggerServerEvent('esx:giveInventoryItem', GetPlayerServerId(closestPlayer), 'item_account', ESX.PlayerData.accounts[i].name, quantity)
+                                            RageUI.CloseAll()
+                                        else
+                                            Visual.Popup("Vous ne pouvez pas donner "..ESX.PlayerData.accounts[i].label.." dans une voiture")
+                                        end
+                                    else
+                                        Visual.Popup("Personne à proximité")
+                                    end
+                                else
+                                    Visual.Popup("Montant invalide")
                                 end
                             elseif index == 2 then
-                                if not Menu.Vehicle.Door.State.FrontRight then
-                                    Menu.Vehicle.Door.State.FrontRight = true
-                                    SetVehicleDoorOpen(plyVeh, 1, false, false)
-                                elseif Menu.Vehicle.Door.State.FrontRight then
-                                    Menu.Vehicle.Door.State.FrontRight = false
-                                    SetVehicleDoorShut(plyVeh, 1, false, false)
-                                end
-                            elseif index == 3 then
-                                if not Menu.Vehicle.Door.State.BackLeft then
-                                    Menu.Vehicle.Door.State.BackLeft = true
-                                    SetVehicleDoorOpen(plyVeh, 2, false, false)
-                                elseif Menu.Vehicle.Door.State.BackLeft then
-                                    Menu.Vehicle.Door.State.BackLeft = false
-                                    SetVehicleDoorShut(plyVeh, 2, false, false)
-                                end
-                            elseif index == 4 then
-                                if not Menu.Vehicle.Door.State.BackRight then
-                                    Menu.Vehicle.Door.State.BackRight = true
-                                    SetVehicleDoorOpen(plyVeh, 3, false, false)
-                                elseif Menu.Vehicle.Door.State.BackRight then
-                                    Menu.Vehicle.Door.State.BackRight = false
-                                    SetVehicleDoorShut(plyVeh, 3, false, false)
+                                local post, quantity = CheckQuantity(KeyboardInput("Quantité", '', 8))
+                                if post then
+                                    if not IsPedSittingInAnyVehicle(plyPed) then
+                                        TriggerServerEvent('esx:removeInventoryItem', 'item_account', ESX.PlayerData.accounts[i].name, quantity)
+                                        RageUI.CloseAll()
+                                    else
+                                        Visual.Popup("Vous ne pouvez pas jeter "..ESX.PlayerData.accounts[i].label.." dans une voiture")
+                                    end
+                                else
+                                    Visual.Popup("Montant invalide")
                                 end
                             end
                         end
-                    end
-                })
-                RageUI.List("~g~Ouvrir~s~/~r~Fermer~s~ la fenêtre", Menu.Vehicle.Window.List, Menu.Vehicle.Window.index or 1, nil, {}, true, {
-                    onListChange = function(index)
-                        Menu.Vehicle.Window.index = index
-                    end,
-                    onSelected = function(index)
-                        print(index)
-                        if not IsPedSittingInAnyVehicle(plyPed) then
-                            Visual.Popup("Vous devez être dans un véhicule")
-                        elseif IsPedSittingInAnyVehicle(plyPed) then
-                            local plyVeh = GetVehiclePedIsIn(plyPed, false)
+                    })
+                elseif ESX.PlayerData.accounts[i].name == 'gold' then
+                    RageUI.List(ESX.PlayerData.accounts[i].label.." : ~y~"..ESX.PlayerData.accounts[i].money, Menu.Wallet.List, Menu.Wallet.indexGold or 1, nil, {}, true, {
+                        onListChange = function(index)
+                            Menu.Wallet.indexGold = index
+                        end,
+                        onSelected = function(index)
                             if index == 1 then
-                                if not Menu.Vehicle.Window.State.FrontLeft then
-                                    Menu.Vehicle.Window.State.FrontLeft = true
-                                    RollDownWindow(plyVeh, 0)
-                                elseif Menu.Vehicle.Window.State.FrontLeft then
-                                    Menu.Vehicle.Window.State.FrontLeft = false
-                                    RollUpWindow(plyVeh, 0)
+                                local post, quantity = CheckQuantity(KeyboardInput("Quantité", '', 8))
+                                if post then
+                                    local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
+                                    if closestDistance ~= -1 and closestDistance <= 3 then
+                                        local closestPed = GetPlayerPed(closestPlayer)
+                                        if not IsPedSittingInAnyVehicle(closestPed) then
+                                            TriggerServerEvent('esx:giveInventoryItem', GetPlayerServerId(closestPlayer), 'item_account', ESX.PlayerData.accounts[i].name, quantity)
+                                            RageUI.CloseAll()
+                                        else
+                                            Visual.Popup("Vous ne pouvez pas donner "..ESX.PlayerData.accounts[i].label.." dans une voiture")
+                                        end
+                                    else
+                                        Visual.Popup("Personne à proximité")
+                                    end
+                                else
+                                    Visual.Popup("Montant invalide")
                                 end
                             elseif index == 2 then
-                                if not Menu.Vehicle.Window.State.FrontRight then
-                                    Menu.Vehicle.Window.State.FrontRight = true
-                                    RollDownWindow(plyVeh, 1)
-                                elseif Menu.Vehicle.Window.State.FrontRight then
-                                    Menu.Vehicle.Window.State.FrontRight = false
-                                    RollUpWindow(plyVeh, 1)
-                                end
-                            elseif index == 3 then
-                                if not Menu.Vehicle.Window.State.BackLeft then
-                                    Menu.Vehicle.Window.State.BackLeft = true
-                                    RollDownWindow(plyVeh, 2)
-                                elseif Menu.Vehicle.Window.State.BackLeft then
-                                    Menu.Vehicle.Window.State.BackLeft = false
-                                    RollUpWindow(plyVeh, 2)
-                                end
-                            elseif index == 4 then
-                                if not Menu.Vehicle.Window.State.BackRight then
-                                    Menu.Vehicle.Window.State.BackRight = true
-                                    RollDownWindow(plyVeh, 3)
-                                elseif Menu.Vehicle.Window.State.BackRight then
-                                    Menu.Vehicle.Window.State.BackRight = false
-                                    RollUpWindow(plyVeh, 3)
-                                end
+                                Visual.Popup("Vous ne pouvez pas jeter votre or")
                             end
                         end
-                    end
-                })
-                RageUI.Button("~g~Ouvrir~s~/~r~Fermer~s~ le capot", nil, {}, true, {
-                    onSelected = function()
-                        if not IsPedSittingInAnyVehicle(plyPed) then
-                            Visual.Popup("Vous devez être dans un véhicule")
-                        elseif IsPedSittingInAnyVehicle(plyPed) then
-                            local plyVeh = GetVehiclePedIsIn(plyPed, false)
-
-                            if not Menu.Vehicle.Door.State.Hood then
-                                Menu.Vehicle.Door.State.Hood = true
-                                SetVehicleDoorOpen(plyVeh, 4, false, false)
-                            elseif Menu.Vehicle.Door.State.Hood then
-                                Menu.Vehicle.Door.State.Hood = false
-                                SetVehicleDoorShut(plyVeh, 4, false, false)
-                            end
-                        end
-                    end
-                })
-                RageUI.Button("~g~Ouvrir~s~/~r~Fermer~s~ le coffre", nil, {}, true, {
-                    onSelected = function()
-                        if not IsPedSittingInAnyVehicle(plyPed) then
-                            Visual.Popup("Vous devez être dans un véhicule")
-                        elseif IsPedSittingInAnyVehicle(plyPed) then
-                            local plyVeh = GetVehiclePedIsIn(plyPed, false)
-
-                            if not Menu.Vehicle.Door.State.Trunk then
-                                Menu.Vehicle.Door.State.Trunk = true
-                                SetVehicleDoorOpen(plyVeh, 5, false, false)
-                            elseif Menu.Vehicle.Door.State.Trunk then
-                                Menu.Vehicle.Door.State.Trunk = false
-                                SetVehicleDoorShut(plyVeh, 5, false, false)
-                            end
-                        end
-                    end
-                })
-            end)
-                RageUI.IsVisible(RMenu:Get('submenu', 'vehinfo'), function()
-                    Menu.Vehicle.Info.Engine.Data = GetVehicleEngineHealth(GetVehiclePedIsIn(GetPlayerPed(-1)))
-                    if Menu.Vehicle.Info.Engine.Data >= 750 then
-                        Menu.Vehicle.Info.Engine.State = Menu.Vehicle.Info.Engine.ActualState[1]
-                    elseif Menu.Vehicle.Info.Engine.Data < 750 and Menu.Vehicle.Info.Engine.Data >= 250 then
-                        Menu.Vehicle.Info.Engine.State = Menu.Vehicle.Info.Engine.ActualState[2]
-                    elseif Menu.Vehicle.Info.Engine.Data < 250 then
-                        Menu.Vehicle.Info.Engine.State = Menu.Vehicle.Info.Engine.ActualState[3]
-                    else
-                        Menu.Vehicle.Info.Engine.State = Menu.Vehicle.Info.Engine.ActualState[4]
-                    end
-                    Menu.Vehicle.Info.Body.Data = GetVehicleBodyHealth(GetVehiclePedIsIn(GetPlayerPed(-1)))
-                    if Menu.Vehicle.Info.Body.Data >= 750 then
-                        Menu.Vehicle.Info.Body.State = Menu.Vehicle.Info.Body.ActualState[1]
-                    elseif Menu.Vehicle.Info.Body.Data < 750 and Menu.Vehicle.Info.Body.Data >= 250 then
-                        Menu.Vehicle.Info.Body.State = Menu.Vehicle.Info.Body.ActualState[2]
-                    elseif Menu.Vehicle.Info.Body.Data < 250 then
-                        Menu.Vehicle.Info.Body.State = Menu.Vehicle.Info.Body.ActualState[3]
-                    else
-                        Menu.Vehicle.Info.Body.State = Menu.Vehicle.Info.Body.ActualState[4]
-                    end
-                    Menu.Vehicle.Info.Tank.Data = GetVehiclePetrolTankHealth(GetVehiclePedIsIn(GetPlayerPed(-1)))
-                    if Menu.Vehicle.Info.Tank.Data >= 750 then
-                        Menu.Vehicle.Info.Tank.State = Menu.Vehicle.Info.Tank.ActualState[1]
-                    elseif Menu.Vehicle.Info.Tank.Data < 750 and Menu.Vehicle.Info.Tank.Data >= 250 then
-                        Menu.Vehicle.Info.Tank.State = Menu.Vehicle.Info.Tank.ActualState[2]
-                    elseif Menu.Vehicle.Info.Tank.Data < 250 then
-                        Menu.Vehicle.Info.Tank.State = Menu.Vehicle.Info.Tank.ActualState[3]
-                    else
-                        Menu.Vehicle.Info.Tank.State = Menu.Vehicle.Info.Tank.ActualState[4]
-                    end
-                    --
-                    local playerPed = GetPlayerPed(-1)
-                    local playerVeh = GetVehiclePedIsIn(playerPed)
-                    local vehicle = ESX.Game.GetVehicleProperties(playerVeh)
-                    local model = vehicle.model
-                    local class = GetVehicleClassFromName(model)
-                    local classLabel = ''
-                    if class == 0 then
-                        classLabel = 'Compact'
-                    elseif class == 1 then
-                        classLabel = 'Sedan'
-                    elseif class == 2 then
-                        classLabel = 'SUV'
-                    elseif class == 3 then
-                        classLabel = 'Coupe'
-                    elseif class == 4 then
-                        classLabel = 'Muscle'
-                    elseif class == 5 then
-                        classLabel = 'Sports Classics'
-                    elseif class == 6 then
-                        classLabel = 'Sports'
-                    elseif class == 7 then
-                        classLabel = 'Super sportive'
-                    elseif class == 8 then
-                        classLabel = 'Moto'
-                    elseif class == 9 then
-                        classLabel = 'Tout-terrain'
-                    elseif class == 10 then
-                        classLabel = 'Industriel'
-                    elseif class == 11 then
-                        classLabel = 'Utilitaire'
-                    elseif class == 12 then
-                        classLabel = 'Van'
-                    elseif class == 13 then
-                        classLabel = 'Vélo'
-                    elseif class == 14 then
-                        classLabel = 'Bateau'
-                    elseif class == 15 then
-                        classLabel = 'Hélicoptère'
-                    elseif class == 16 then
-                        classLabel = 'Avion'
-                    elseif class == 17 then
-                        classLabel = 'Service'
-                    elseif class == 18 then
-                        classLabel = 'Secours'
-                    elseif class == 19 then
-                        classLabel = 'Militaire'
-                    elseif class == 20 then
-                        classLabel = 'Commercial'
-                    elseif class == 21 then
-                        classLabel = 'Train'
-                    end
-                    local vehicleData = {
-                        label = GetLabelText(GetDisplayNameFromVehicleModel(model)),
-                        fuel = ESX.Math.Round(GetVehicleFuelLevel(playerVeh)),
-                        class = classLabel,
-                        maxPassenger = GetVehicleMaxNumberOfPassengers(playerVeh),
-                        plate = GetVehicleNumberPlateText(playerVeh),
-                    }
-                    RageUI.Button("Nom du véhicule", nil, {RightLabel = vehicleData.label}, true, {})
-                    RageUI.Button("Classe", nil, {RightLabel = vehicleData.class}, true, {})
-                    RageUI.Button("Plaque", nil, {RightLabel = vehicleData.plate}, true, {})
-                    RageUI.Button("Carburant", nil, {RightLabel = vehicleData.fuel.."%"}, true, {})
-                    RageUI.Button("Nombre de place passager", nil, {RightLabel = vehicleData.maxPassenger}, true, {})
-                    RageUI.Button("Etat moteur", nil, {RightLabel = Menu.Vehicle.Info.Engine.State}, true, {})
-                    RageUI.Button("Etat carrosserie", nil, {RightLabel = Menu.Vehicle.Info.Body.State}, true, {})
-                    RageUI.Button("Etat reservoir", nil, {RightLabel = Menu.Vehicle.Info.Tank.State}, true, {})
-                end)
-            RageUI.IsVisible(RMenu:Get('submenu', 'society'), function()
-                RefreshMoney()
-                if societymoney ~= nil then
-                    RageUI.Button("Compte entreprise", nil, {RightLabel = "~g~"..societymoney.."$"}, true, {})
+                    })
                 end
-                RageUI.Button("Recruter", nil, {}, true, {
-                    onSelected = function()
-                        if ESX.PlayerData.job.grade_name == 'boss' then
+            end
+            RageUI.Button("Facture", nil, {}, true, {
+                onSelected = function()
+                    ESX.TriggerServerCallback('PA_menuperso:Bill_getBills', function(bills)
+                        Menu.Wallet.Bill = bills
+                    end)
+                end
+            }, RMenu:Get('submenu', 'bill'))
+            if Config.idCard then
+                RageUI.List("Papier", Menu.Wallet.Paper.List, Menu.Wallet.Paper.index or 1, nil, {}, true, {
+                    onListChange = function(index)
+                        Menu.Wallet.Paper.index = index
+                    end,
+                    onSelected = function(index)
+                        if index == 1 then
                             local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
 
-                            if closestPlayer == -1 or closestDistance > 3.0 then
-                                Visual.Popup("Personne à proximité")
+                            if closestDistance ~= -1 and closestDistance <= 3.0 then
+                                TriggerServerEvent('jsfour-idcard:open', GetPlayerServerId(PlayerId()), GetPlayerServerId(closestPlayer))
                             else
-                                TriggerServerEvent('PA_menuperso:recruterplayer', GetPlayerServerId(closestPlayer), ESX.PlayerData.job.name, 0)
+                                Visual.Popup("Personne à proximité")
                             end
-                        else
-                            Visual.Popup("Vous n'avez pas les ~r~droits~w~")
+                        elseif index == 2 then
+                            TriggerServerEvent('jsfour-idcard:open', GetPlayerServerId(PlayerId()), GetPlayerServerId(PlayerId()))
+                        elseif index == 3 then
+                            local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
+
+                            if closestDistance ~= -1 and closestDistance <= 3.0 then
+                                TriggerServerEvent('jsfour-idcard:open', GetPlayerServerId(PlayerId()), GetPlayerServerId(closestPlayer), 'driver')
+                            else
+                                Visual.Popup("Personne à proximité")
+                            end
+                        elseif index == 4 then
+                            TriggerServerEvent('jsfour-idcard:open', GetPlayerServerId(PlayerId()), GetPlayerServerId(PlayerId()), 'driver')
+                        elseif index == 5 then
+                            local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
+
+                            if closestDistance ~= -1 and closestDistance <= 3.0 then
+                                TriggerServerEvent('jsfour-idcard:open', GetPlayerServerId(PlayerId()), GetPlayerServerId(closestPlayer), 'weapon')
+                            else
+                                Visual.Popup("Personne à proximité")
+                            end
+                        elseif index == 6 then
+                            TriggerServerEvent('jsfour-idcard:open', GetPlayerServerId(PlayerId()), GetPlayerServerId(PlayerId()), 'weapon')
                         end
                     end
                 })
-                RageUI.Button("Licensier", nil, {}, true, {
-                    onSelected = function()
-                        if ESX.PlayerData.job.grade_name == 'boss' then
-                            local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
+            end
+        end)
 
-                            if closestPlayer == -1 or closestDistance > 3.0 then
-                                Visual.Popup("Personne à proximité")
-                            else
-                                TriggerServerEvent('PA_menuperso:virerplayer', GetPlayerServerId(closestPlayer))
-                            end
-                        else
-                            Visual.Popup("Vous n'avez pas les ~r~droits~w~")
+        RageUI.IsVisible(RMenu:Get('submenu', 'bill'), function()
+            for i=1, #Menu.Wallet.Bill, 1 do
+                RageUI.Button(Menu.Wallet.Bill[i].label, nil, {RightLabel = Menu.Wallet.Bill[i].amount.."$"}, true, {
+                    onSelected = function()
+                        ESX.TriggerServerCallback('esx_billing:payBill', function()
+                            ESX.TriggerServerCallback('PA_menuperso:Bill_getBills', function(bills)
+                                Menu.Wallet.Bill = bills
+                            end)
+                        end, Menu.Wallet.Bill[i].id)
+                    end
+                })
+            end
+        end)
+
+        if Config.useDoubleKey then
+            RageUI.IsVisible(RMenu:Get('submenu', 'carkey'), function()
+                for i=1, #Menu.CarKey, 1 do
+                    RageUI.Button(Menu.CarKey[i].label.." - "..Menu.CarKey[i].value, nil, {}, true, {
+                        onSelected = function()
+                            Menu.CarKeySelected = Menu.CarKey[i].value
+                        end
+                    }, RMenu:Get('submenu', 'keyaction'))
+                end
+            end)
+            RageUI.IsVisible(RMenu:Get('submenu', 'keyaction'), function()
+                local player, distance = ESX.Game.GetClosestPlayer()
+                local playerPed = GetPlayerPed(-1)
+                local coords    = GetEntityCoords(playerPed, true)
+                local vehicle = GetClosestVehicle(coords.x, coords.y, coords.z, 7.0, 0, 71)
+                local vehicleProps = ESX.Game.GetVehicleProperties(vehicle)
+                RageUI.Button("Faire un double", nil, {}, true, {
+                    onSelected = function()
+                        RageUI.CloseAll()
+                        if distance ~= -1 and distance <= 3.0 then
+                            TriggerServerEvent('esx_vehiclelock:preterkey', GetPlayerServerId(player), Menu.CarKeySelected)
                         end
                     end
                 })
-                RageUI.Button("Promouvoir", nil, {}, true, {
+                RageUI.Button("Donner les clés", nil, {}, true, {
                     onSelected = function()
-                        if ESX.PlayerData.job.grade_name == 'boss' then
-                            local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
-
-                            if closestPlayer == -1 or closestDistance > 3.0 then
-                                Visual.Popup("Personne à proximité")
-                            else
-                                TriggerServerEvent('PA_menuperso:promouvoirplayer', GetPlayerServerId(closestPlayer))
-                            end
-                        else
-                            Visual.Popup("Vous n'avez pas les ~r~droits~w~")
+                        RageUI.CloseAll()
+                        if distance ~= -1 and distance <= 3.0 then
+                            TriggerServerEvent('esx_vehiclelock:donnerkey', GetPlayerServerId(player), Menu.CarKeySelected)
+                            TriggerServerEvent('esx_vehiclelock:deletekey', Menu.CarKeySelected)
+                            TriggerServerEvent('esx_vehiclelock:changeowner', GetPlayerServerId(player), vehicleProps)
                         end
                     end
                 })
-                RageUI.Button("Rétrograder", nil, {}, true, {
+                RageUI.Button("Jeter", nil, {RightBadge = RageUI.BadgeStyle.Alert}, true, {
                     onSelected = function()
-                        if ESX.PlayerData.job.grade_name == 'boss' then
-                            local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
-
-                            if closestPlayer == -1 or closestDistance > 3.0 then
-                                Visual.Popup("Personne à proximité")
-                            else
-                                TriggerServerEvent('PA_menuperso:destituerplayer', GetPlayerServerId(closestPlayer))
-                            end
-                        else
-                            Visual.Popup("Vous n'avez pas les ~r~droits~w~")
-                        end
+                        RageUI.CloseAll()
+                        TriggerServerEvent('esx_vehiclelock:deletekey', Menu.CarKeySelected)
                     end
                 })
             end)
-            RageUI.IsVisible(RMenu:Get('submenu', 'gang'), function()
-            RefreshMoney2()
-            if societymoney2 ~= nil then
-                RageUI.Button("Compte organisation", nil, {RightLabel = "~g~"..societymoney2.."$"}, true, {})
+        end
+
+        RageUI.IsVisible(RMenu:Get('submenu', 'vehicle'), function()
+            local plyPed = PlayerPedId()
+            RageUI.Button("Information véhicule", nil, {}, true, {}, RMenu:Get('submenu', 'vehinfo'))
+            RageUI.Button("~g~Allumer~s~/~r~Éteindre~s~ le moteur", nil, {}, true,{
+                onSelected = function()
+                    if not IsPedSittingInAnyVehicle(GetPlayerPed(-1)) then
+                        Visual.Popup("Vous devez être dans un véhicule")
+                    elseif IsPedSittingInAnyVehicle(GetPlayerPed(-1)) then
+                        local plyVeh = GetVehiclePedIsIn(plyPed, false)
+
+                        if GetIsVehicleEngineRunning(plyVeh) then
+                            SetVehicleEngineOn(plyVeh, false, false, true)
+                            SetVehicleUndriveable(plyVeh, true)
+                        elseif not GetIsVehicleEngineRunning(plyVeh) then
+                            SetVehicleEngineOn(plyVeh, true, false, true)
+                            SetVehicleUndriveable(plyVeh, false)
+                        end
+                    end
+                end
+            })
+            RageUI.List("~g~Ouvrir~s~/~r~Fermer~s~ la porte", Menu.Vehicle.Door.List, Menu.Vehicle.Door.index or 1, nil, {}, true, {
+                onListChange = function(index)
+                    Menu.Vehicle.Door.index = index
+                end,
+                onSelected = function(index)
+                    if not IsPedSittingInAnyVehicle(plyPed) then
+                        Visual.Popup("Vous devez être dans un véhicule")
+                    elseif IsPedSittingInAnyVehicle(plyPed) then
+                        local plyVeh = GetVehiclePedIsIn(plyPed, false)
+
+                        if index == 1 then
+                            if not Menu.Vehicle.Door.State.FrontLeft then
+                                Menu.Vehicle.Door.State.FrontLeft = true
+                                SetVehicleDoorOpen(plyVeh, 0, false, false)
+                            elseif  Menu.Vehicle.Door.State.FrontLeft then
+                                Menu.Vehicle.Door.State.FrontLeft = false
+                                SetVehicleDoorShut(plyVeh, 0, false, false)
+                            end
+                        elseif index == 2 then
+                            if not Menu.Vehicle.Door.State.FrontRight then
+                                Menu.Vehicle.Door.State.FrontRight = true
+                                SetVehicleDoorOpen(plyVeh, 1, false, false)
+                            elseif Menu.Vehicle.Door.State.FrontRight then
+                                Menu.Vehicle.Door.State.FrontRight = false
+                                SetVehicleDoorShut(plyVeh, 1, false, false)
+                            end
+                        elseif index == 3 then
+                            if not Menu.Vehicle.Door.State.BackLeft then
+                                Menu.Vehicle.Door.State.BackLeft = true
+                                SetVehicleDoorOpen(plyVeh, 2, false, false)
+                            elseif Menu.Vehicle.Door.State.BackLeft then
+                                Menu.Vehicle.Door.State.BackLeft = false
+                                SetVehicleDoorShut(plyVeh, 2, false, false)
+                            end
+                        elseif index == 4 then
+                            if not Menu.Vehicle.Door.State.BackRight then
+                                Menu.Vehicle.Door.State.BackRight = true
+                                SetVehicleDoorOpen(plyVeh, 3, false, false)
+                            elseif Menu.Vehicle.Door.State.BackRight then
+                                Menu.Vehicle.Door.State.BackRight = false
+                                SetVehicleDoorShut(plyVeh, 3, false, false)
+                            end
+                        end
+                    end
+                end
+            })
+            RageUI.List("~g~Ouvrir~s~/~r~Fermer~s~ la fenêtre", Menu.Vehicle.Window.List, Menu.Vehicle.Window.index or 1, nil, {}, true, {
+                onListChange = function(index)
+                    Menu.Vehicle.Window.index = index
+                end,
+                onSelected = function(index)
+                    print(index)
+                    if not IsPedSittingInAnyVehicle(plyPed) then
+                        Visual.Popup("Vous devez être dans un véhicule")
+                    elseif IsPedSittingInAnyVehicle(plyPed) then
+                        local plyVeh = GetVehiclePedIsIn(plyPed, false)
+                        if index == 1 then
+                            if not Menu.Vehicle.Window.State.FrontLeft then
+                                Menu.Vehicle.Window.State.FrontLeft = true
+                                RollDownWindow(plyVeh, 0)
+                            elseif Menu.Vehicle.Window.State.FrontLeft then
+                                Menu.Vehicle.Window.State.FrontLeft = false
+                                RollUpWindow(plyVeh, 0)
+                            end
+                        elseif index == 2 then
+                            if not Menu.Vehicle.Window.State.FrontRight then
+                                Menu.Vehicle.Window.State.FrontRight = true
+                                RollDownWindow(plyVeh, 1)
+                            elseif Menu.Vehicle.Window.State.FrontRight then
+                                Menu.Vehicle.Window.State.FrontRight = false
+                                RollUpWindow(plyVeh, 1)
+                            end
+                        elseif index == 3 then
+                            if not Menu.Vehicle.Window.State.BackLeft then
+                                Menu.Vehicle.Window.State.BackLeft = true
+                                RollDownWindow(plyVeh, 2)
+                            elseif Menu.Vehicle.Window.State.BackLeft then
+                                Menu.Vehicle.Window.State.BackLeft = false
+                                RollUpWindow(plyVeh, 2)
+                            end
+                        elseif index == 4 then
+                            if not Menu.Vehicle.Window.State.BackRight then
+                                Menu.Vehicle.Window.State.BackRight = true
+                                RollDownWindow(plyVeh, 3)
+                            elseif Menu.Vehicle.Window.State.BackRight then
+                                Menu.Vehicle.Window.State.BackRight = false
+                                RollUpWindow(plyVeh, 3)
+                            end
+                        end
+                    end
+                end
+            })
+            RageUI.Button("~g~Ouvrir~s~/~r~Fermer~s~ le capot", nil, {}, true, {
+                onSelected = function()
+                    if not IsPedSittingInAnyVehicle(plyPed) then
+                        Visual.Popup("Vous devez être dans un véhicule")
+                    elseif IsPedSittingInAnyVehicle(plyPed) then
+                        local plyVeh = GetVehiclePedIsIn(plyPed, false)
+
+                        if not Menu.Vehicle.Door.State.Hood then
+                            Menu.Vehicle.Door.State.Hood = true
+                            SetVehicleDoorOpen(plyVeh, 4, false, false)
+                        elseif Menu.Vehicle.Door.State.Hood then
+                            Menu.Vehicle.Door.State.Hood = false
+                            SetVehicleDoorShut(plyVeh, 4, false, false)
+                        end
+                    end
+                end
+            })
+            RageUI.Button("~g~Ouvrir~s~/~r~Fermer~s~ le coffre", nil, {}, true, {
+                onSelected = function()
+                    if not IsPedSittingInAnyVehicle(plyPed) then
+                        Visual.Popup("Vous devez être dans un véhicule")
+                    elseif IsPedSittingInAnyVehicle(plyPed) then
+                        local plyVeh = GetVehiclePedIsIn(plyPed, false)
+
+                        if not Menu.Vehicle.Door.State.Trunk then
+                            Menu.Vehicle.Door.State.Trunk = true
+                            SetVehicleDoorOpen(plyVeh, 5, false, false)
+                        elseif Menu.Vehicle.Door.State.Trunk then
+                            Menu.Vehicle.Door.State.Trunk = false
+                            SetVehicleDoorShut(plyVeh, 5, false, false)
+                        end
+                    end
+                end
+            })
+        end)
+        RageUI.IsVisible(RMenu:Get('submenu', 'vehinfo'), function()
+            Menu.Vehicle.Info.Engine.Data = GetVehicleEngineHealth(GetVehiclePedIsIn(GetPlayerPed(-1)))
+            if Menu.Vehicle.Info.Engine.Data >= 750 then
+                Menu.Vehicle.Info.Engine.State = Menu.Vehicle.Info.Engine.ActualState[1]
+            elseif Menu.Vehicle.Info.Engine.Data < 750 and Menu.Vehicle.Info.Engine.Data >= 250 then
+                Menu.Vehicle.Info.Engine.State = Menu.Vehicle.Info.Engine.ActualState[2]
+            elseif Menu.Vehicle.Info.Engine.Data < 250 then
+                Menu.Vehicle.Info.Engine.State = Menu.Vehicle.Info.Engine.ActualState[3]
+            else
+                Menu.Vehicle.Info.Engine.State = Menu.Vehicle.Info.Engine.ActualState[4]
+            end
+            Menu.Vehicle.Info.Body.Data = GetVehicleBodyHealth(GetVehiclePedIsIn(GetPlayerPed(-1)))
+            if Menu.Vehicle.Info.Body.Data >= 750 then
+                Menu.Vehicle.Info.Body.State = Menu.Vehicle.Info.Body.ActualState[1]
+            elseif Menu.Vehicle.Info.Body.Data < 750 and Menu.Vehicle.Info.Body.Data >= 250 then
+                Menu.Vehicle.Info.Body.State = Menu.Vehicle.Info.Body.ActualState[2]
+            elseif Menu.Vehicle.Info.Body.Data < 250 then
+                Menu.Vehicle.Info.Body.State = Menu.Vehicle.Info.Body.ActualState[3]
+            else
+                Menu.Vehicle.Info.Body.State = Menu.Vehicle.Info.Body.ActualState[4]
+            end
+            Menu.Vehicle.Info.Tank.Data = GetVehiclePetrolTankHealth(GetVehiclePedIsIn(GetPlayerPed(-1)))
+            if Menu.Vehicle.Info.Tank.Data >= 750 then
+                Menu.Vehicle.Info.Tank.State = Menu.Vehicle.Info.Tank.ActualState[1]
+            elseif Menu.Vehicle.Info.Tank.Data < 750 and Menu.Vehicle.Info.Tank.Data >= 250 then
+                Menu.Vehicle.Info.Tank.State = Menu.Vehicle.Info.Tank.ActualState[2]
+            elseif Menu.Vehicle.Info.Tank.Data < 250 then
+                Menu.Vehicle.Info.Tank.State = Menu.Vehicle.Info.Tank.ActualState[3]
+            else
+                Menu.Vehicle.Info.Tank.State = Menu.Vehicle.Info.Tank.ActualState[4]
+            end
+            --
+            local playerPed = GetPlayerPed(-1)
+            local playerVeh = GetVehiclePedIsIn(playerPed)
+            local vehicle = ESX.Game.GetVehicleProperties(playerVeh)
+            local model = vehicle.model
+            local class = GetVehicleClassFromName(model)
+            local classLabel = ''
+            if class == 0 then
+                classLabel = 'Compact'
+            elseif class == 1 then
+                classLabel = 'Sedan'
+            elseif class == 2 then
+                classLabel = 'SUV'
+            elseif class == 3 then
+                classLabel = 'Coupe'
+            elseif class == 4 then
+                classLabel = 'Muscle'
+            elseif class == 5 then
+                classLabel = 'Sports Classics'
+            elseif class == 6 then
+                classLabel = 'Sports'
+            elseif class == 7 then
+                classLabel = 'Super sportive'
+            elseif class == 8 then
+                classLabel = 'Moto'
+            elseif class == 9 then
+                classLabel = 'Tout-terrain'
+            elseif class == 10 then
+                classLabel = 'Industriel'
+            elseif class == 11 then
+                classLabel = 'Utilitaire'
+            elseif class == 12 then
+                classLabel = 'Van'
+            elseif class == 13 then
+                classLabel = 'Vélo'
+            elseif class == 14 then
+                classLabel = 'Bateau'
+            elseif class == 15 then
+                classLabel = 'Hélicoptère'
+            elseif class == 16 then
+                classLabel = 'Avion'
+            elseif class == 17 then
+                classLabel = 'Service'
+            elseif class == 18 then
+                classLabel = 'Secours'
+            elseif class == 19 then
+                classLabel = 'Militaire'
+            elseif class == 20 then
+                classLabel = 'Commercial'
+            elseif class == 21 then
+                classLabel = 'Train'
+            end
+            local vehicleData = {
+                label = GetLabelText(GetDisplayNameFromVehicleModel(model)),
+                fuel = ESX.Math.Round(GetVehicleFuelLevel(playerVeh)),
+                class = classLabel,
+                maxPassenger = GetVehicleMaxNumberOfPassengers(playerVeh),
+                plate = GetVehicleNumberPlateText(playerVeh),
+            }
+            RageUI.Button("Nom du véhicule", nil, {RightLabel = vehicleData.label}, true, {})
+            RageUI.Button("Classe", nil, {RightLabel = vehicleData.class}, true, {})
+            RageUI.Button("Plaque", nil, {RightLabel = vehicleData.plate}, true, {})
+            RageUI.Button("Carburant", nil, {RightLabel = vehicleData.fuel.."%"}, true, {})
+            RageUI.Button("Nombre de place passager", nil, {RightLabel = vehicleData.maxPassenger}, true, {})
+            RageUI.Button("Etat moteur", nil, {RightLabel = Menu.Vehicle.Info.Engine.State}, true, {})
+            RageUI.Button("Etat carrosserie", nil, {RightLabel = Menu.Vehicle.Info.Body.State}, true, {})
+            RageUI.Button("Etat reservoir", nil, {RightLabel = Menu.Vehicle.Info.Tank.State}, true, {})
+        end)
+
+        RageUI.IsVisible(RMenu:Get('submenu', 'society'), function()
+            RefreshMoney()
+            if societymoney ~= nil then
+                RageUI.Button("Compte entreprise", nil, {RightLabel = "~g~"..societymoney.."$"}, true, {})
             end
             RageUI.Button("Recruter", nil, {}, true, {
                 onSelected = function()
-                    if ESX.PlayerData.job2.grade_name == 'boss' then
+                    if ESX.PlayerData.job.grade_name == 'boss' then
                         local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
 
                         if closestPlayer == -1 or closestDistance > 3.0 then
                             Visual.Popup("Personne à proximité")
                         else
-                            TriggerServerEvent('PA_menuperso:recruterplayer2', GetPlayerServerId(closestPlayer), ESX.PlayerData.job2.name, 0)
+                            TriggerServerEvent('PA_menuperso:recruterplayer', GetPlayerServerId(closestPlayer), ESX.PlayerData.job.name, 0)
                         end
                     else
                         Visual.Popup("Vous n'avez pas les ~r~droits~w~")
@@ -1000,13 +961,13 @@ Citizen.CreateThread(function()
             })
             RageUI.Button("Licensier", nil, {}, true, {
                 onSelected = function()
-                    if ESX.PlayerData.job2.grade_name == 'boss' then
+                    if ESX.PlayerData.job.grade_name == 'boss' then
                         local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
 
                         if closestPlayer == -1 or closestDistance > 3.0 then
                             Visual.Popup("Personne à proximité")
                         else
-                            TriggerServerEvent('PA_menuperso:virerplayer2', GetPlayerServerId(closestPlayer))
+                            TriggerServerEvent('PA_menuperso:virerplayer', GetPlayerServerId(closestPlayer))
                         end
                     else
                         Visual.Popup("Vous n'avez pas les ~r~droits~w~")
@@ -1015,13 +976,13 @@ Citizen.CreateThread(function()
             })
             RageUI.Button("Promouvoir", nil, {}, true, {
                 onSelected = function()
-                    if ESX.PlayerData.job2.grade_name == 'boss' then
+                    if ESX.PlayerData.job.grade_name == 'boss' then
                         local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
 
                         if closestPlayer == -1 or closestDistance > 3.0 then
                             Visual.Popup("Personne à proximité")
                         else
-                            TriggerServerEvent('PA_menuperso:promouvoirplayer2', GetPlayerServerId(closestPlayer))
+                            TriggerServerEvent('PA_menuperso:promouvoirplayer', GetPlayerServerId(closestPlayer))
                         end
                     else
                         Visual.Popup("Vous n'avez pas les ~r~droits~w~")
@@ -1030,13 +991,13 @@ Citizen.CreateThread(function()
             })
             RageUI.Button("Rétrograder", nil, {}, true, {
                 onSelected = function()
-                    if ESX.PlayerData.job2.grade_name == 'boss' then
+                    if ESX.PlayerData.job.grade_name == 'boss' then
                         local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
 
                         if closestPlayer == -1 or closestDistance > 3.0 then
                             Visual.Popup("Personne à proximité")
                         else
-                            TriggerServerEvent('PA_menuperso:destituerplayer2', GetPlayerServerId(closestPlayer))
+                            TriggerServerEvent('PA_menuperso:destituerplayer', GetPlayerServerId(closestPlayer))
                         end
                     else
                         Visual.Popup("Vous n'avez pas les ~r~droits~w~")
@@ -1044,215 +1005,287 @@ Citizen.CreateThread(function()
                 end
             })
         end)
-            RageUI.IsVisible(RMenu:Get('submenu', 'admin'), function()
-                RageUI.Button("TP", nil, {}, true, {}, RMenu:Get('submenu', 'admintp'))
-                RageUI.Button("Joueur", nil, {}, true, {}, RMenu:Get('submenu', 'adminplayer'))
-                RageUI.Button("Objet", nil, {}, true, {}, RMenu:Get('submenu', 'adminitem'))
-                RageUI.Button("Job", nil, {}, true, {}, RMenu:Get('submenu', 'adminjob'))
-                RageUI.Button("Gang", nil, {}, true, {}, RMenu:Get('submenu', 'admingang'))
-                RageUI.Button("Véhicule", nil, {}, true, {}, RMenu:Get('submenu', 'admincar'))
-                RageUI.Button("Autre", nil, {}, true, {}, RMenu:Get('submenu', 'adminmisc'))
+
+        if Config.doubleJob then
+            RageUI.IsVisible(RMenu:Get('submenu', 'gang'), function()
+                RefreshMoney2()
+                if societymoney2 ~= nil then
+                    RageUI.Button("Compte organisation", nil, {RightLabel = "~g~"..societymoney2.."$"}, true, {})
+                end
+                RageUI.Button("Recruter", nil, {}, true, {
+                    onSelected = function()
+                        if ESX.PlayerData.job2.grade_name == 'boss' then
+                            local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
+
+                            if closestPlayer == -1 or closestDistance > 3.0 then
+                                Visual.Popup("Personne à proximité")
+                            else
+                                TriggerServerEvent('PA_menuperso:recruterplayer2', GetPlayerServerId(closestPlayer), ESX.PlayerData.job2.name, 0)
+                            end
+                        else
+                            Visual.Popup("Vous n'avez pas les ~r~droits~w~")
+                        end
+                    end
+                })
+                RageUI.Button("Licensier", nil, {}, true, {
+                    onSelected = function()
+                        if ESX.PlayerData.job2.grade_name == 'boss' then
+                            local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
+
+                            if closestPlayer == -1 or closestDistance > 3.0 then
+                                Visual.Popup("Personne à proximité")
+                            else
+                                TriggerServerEvent('PA_menuperso:virerplayer2', GetPlayerServerId(closestPlayer))
+                            end
+                        else
+                            Visual.Popup("Vous n'avez pas les ~r~droits~w~")
+                        end
+                    end
+                })
+                RageUI.Button("Promouvoir", nil, {}, true, {
+                    onSelected = function()
+                        if ESX.PlayerData.job2.grade_name == 'boss' then
+                            local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
+
+                            if closestPlayer == -1 or closestDistance > 3.0 then
+                                Visual.Popup("Personne à proximité")
+                            else
+                                TriggerServerEvent('PA_menuperso:promouvoirplayer2', GetPlayerServerId(closestPlayer))
+                            end
+                        else
+                            Visual.Popup("Vous n'avez pas les ~r~droits~w~")
+                        end
+                    end
+                })
+                RageUI.Button("Rétrograder", nil, {}, true, {
+                    onSelected = function()
+                        if ESX.PlayerData.job2.grade_name == 'boss' then
+                            local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
+
+                            if closestPlayer == -1 or closestDistance > 3.0 then
+                                Visual.Popup("Personne à proximité")
+                            else
+                                TriggerServerEvent('PA_menuperso:destituerplayer2', GetPlayerServerId(closestPlayer))
+                            end
+                        else
+                            Visual.Popup("Vous n'avez pas les ~r~droits~w~")
+                        end
+                    end
+                })
             end)
-                RageUI.IsVisible(RMenu:Get('submenu', 'admintp'), function()
-                    RageUI.Button("TP sur soi", nil, {}, true, {
-                        onSelected = function()
-                            admin_tp_playertome()
-                        end
-                    })
-                    RageUI.Button("TP sur marqueur", nil, {}, true, {
-                        onSelected = function()
-                            admin_tp_marcker()
-                        end
-                    })
-                    RageUI.Button("TP sur joueur", nil, {}, true, {
-                        onSelected = function()
-                            admin_tp_toplayer()
-                        end
-                    })
-                    RageUI.Button("TP sur coord", nil, {}, true, {
-                        onSelected = function()
-                            admin_tp_pos()
-                        end
-                    })
-                end)
-                RageUI.IsVisible(RMenu:Get('submenu', 'adminplayer'), function()
-                    RageUI.Button("No clip", nil, {}, true, {
-                        onSelected = function()
-                            admin_no_clip()
-                        end
-                    })
-                    RageUI.Button("God mode", nil, {}, true, {
-                        onSelected = function()
-                            admin_godmode()
-                        end
-                    })
-                    RageUI.Button("Mode fantôme", nil, {}, true, {
-                        onSelected = function()
-                            admin_mode_fantome()
-                        end
-                    })
-                end)
-                RageUI.IsVisible(RMenu:Get('submenu', 'adminitem'), function()
-                    for i=1, #ESX.PlayerData.inventory, 1 do
-                        local label = ESX.PlayerData.inventory[i].label
-                        local weight = "Poids de l'objet : "..tonumber(ESX.PlayerData.inventory[i].weight/1000).."kg"
-                        local name = "Nom de l'objet : "..ESX.PlayerData.inventory[i].name
-                        RageUI.Button(label, weight.."\n"..name, {}, true, {
-                            onSelected = function()
-                                local post, quantity = CheckQuantity(KeyboardInput("Quantité", '', 7))
-                                if post then
-                                    if quantity ~= nil and quantity > 0 then
-                                        ESX.TriggerServerCallback('PA_menuperso:giveItem', function(give)
-                                            if give and name ~= nil then
-                                                Visual.Popup("Vous vous êtes donné ~y~x"..quantity.." ~b~"..label)
-                                            end
-                                        end, ESX.PlayerData.inventory[i].name, quantity)
-                                    else
-                                        Visual.Popup("Quantité invalide")
+        end
+
+        RageUI.IsVisible(RMenu:Get('submenu', 'admin'), function()
+            RageUI.Button("TP", nil, {}, true, {}, RMenu:Get('submenu', 'admintp'))
+            RageUI.Button("Joueur", nil, {}, true, {}, RMenu:Get('submenu', 'adminplayer'))
+            RageUI.Button("Objet", nil, {}, true, {}, RMenu:Get('submenu', 'adminitem'))
+            RageUI.Button("Job", nil, {}, true, {}, RMenu:Get('submenu', 'adminjob'))
+            RageUI.Button("Gang", nil, {}, true, {}, RMenu:Get('submenu', 'admingang'))
+            RageUI.Button("Véhicule", nil, {}, true, {}, RMenu:Get('submenu', 'admincar'))
+            RageUI.Button("Autre", nil, {}, true, {}, RMenu:Get('submenu', 'adminmisc'))
+        end)
+        RageUI.IsVisible(RMenu:Get('submenu', 'admintp'), function()
+            RageUI.Button("TP sur soi", nil, {}, true, {
+                onSelected = function()
+                    admin_tp_playertome()
+                end
+            })
+            RageUI.Button("TP sur marqueur", nil, {}, true, {
+                onSelected = function()
+                    admin_tp_marcker()
+                end
+            })
+            RageUI.Button("TP sur joueur", nil, {}, true, {
+                onSelected = function()
+                    admin_tp_toplayer()
+                end
+            })
+            RageUI.Button("TP sur coord", nil, {}, true, {
+                onSelected = function()
+                    admin_tp_pos()
+                end
+            })
+        end)
+        RageUI.IsVisible(RMenu:Get('submenu', 'adminplayer'), function()
+            RageUI.Button("No clip", nil, {}, true, {
+                onSelected = function()
+                    admin_no_clip()
+                end
+            })
+            RageUI.Button("God mode", nil, {}, true, {
+                onSelected = function()
+                    admin_godmode()
+                end
+            })
+            RageUI.Button("Mode fantôme", nil, {}, true, {
+                onSelected = function()
+                    admin_mode_fantome()
+                end
+            })
+        end)
+        RageUI.IsVisible(RMenu:Get('submenu', 'adminitem'), function()
+            for i=1, #ESX.PlayerData.inventory, 1 do
+                local label = ESX.PlayerData.inventory[i].label
+                local weight = "Poids de l'objet : "..tonumber(ESX.PlayerData.inventory[i].weight/1000).."kg"
+                local name = "Nom de l'objet : "..ESX.PlayerData.inventory[i].name
+                RageUI.Button(label, weight.."\n"..name, {}, true, {
+                    onSelected = function()
+                        local post, quantity = CheckQuantity(KeyboardInput("Quantité", '', 7))
+                        if post then
+                            if quantity ~= nil and quantity > 0 then
+                                ESX.TriggerServerCallback('PA_menuperso:giveItem', function(give)
+                                    if give and name ~= nil then
+                                        Visual.Popup("Vous vous êtes donné ~y~x"..quantity.." ~b~"..label)
                                     end
-                                else
-                                    Visual.Popup("Entrée invalide")
-                                end
+                                end, ESX.PlayerData.inventory[i].name, quantity)
+                            else
+                                Visual.Popup("Quantité invalide")
                             end
-                        })
+                        else
+                            Visual.Popup("Entrée invalide")
+                        end
                     end
-                end)
-                RageUI.IsVisible(RMenu:Get('submenu', 'adminjob'), function()
-                    ESX.TriggerServerCallback('PA_menuperso:getJob', function(joblist)
-                        jobList = joblist
-                    end)
-                    for i=1, #jobList, 1 do
-                        RageUI.Button(jobList[i].label, jobList[i].name, {}, true, {
-                            onSelected = function()
-                                ESX.TriggerServerCallback('PA_menuperso:getgrade', function(gradelist)
-                                    grade = gradelist
-                                    selectedJob = jobList[i]
-                                end, jobList[i].name)
-                            end
-                        }, RMenu:Get('submenu', 'adminjobgrade'))
+                })
+            end
+        end)
+        RageUI.IsVisible(RMenu:Get('submenu', 'adminjob'), function()
+            ESX.TriggerServerCallback('PA_menuperso:getJob', function(joblist)
+                jobList = joblist
+            end)
+            for i=1, #jobList, 1 do
+                RageUI.Button(jobList[i].label, jobList[i].name, {}, true, {
+                    onSelected = function()
+                        ESX.TriggerServerCallback('PA_menuperso:getgrade', function(gradelist)
+                            grade = gradelist
+                            selectedJob = jobList[i]
+                        end, jobList[i].name)
                     end
-                end)
-                    RageUI.IsVisible(RMenu:Get('submenu', 'adminjobgrade'), function()
-                        for i=1, #grade, 1 do
-                            RageUI.Button(grade[i].label, "Nom : "..grade[i].name.."\nId : "..grade[i].grade, {}, true, {
-                                onSelected = function()
-                                    TriggerServerEvent('PA_menuperso:setjob', selectedJob.name, grade[i].grade)
-                                    Visual.Popup("Vous êtes maintenant " .. grade[i].label .. " au " .. selectedJob.label)
-                                end
-                            })
-                        end
-                    end)
-                RageUI.IsVisible(RMenu:Get('submenu', 'admingang'), function()
-                    ESX.TriggerServerCallback('PA_menuperso:getJob', function(joblist)
-                        jobList = joblist
-                    end)
-                    for i=1, #jobList, 1 do
-                        RageUI.Button(jobList[i].label, jobList[i].name, {}, true, {
-                            onSelected = function()
-                                ESX.TriggerServerCallback('PA_menuperso:getgrade', function(gradelist)
-                                    grade = gradelist
-                                    selectedJob = jobList[i]
-                                end, jobList[i].name)
-                            end
-                        }, RMenu:Get('submenu', 'adminganggrade'))
+                }, RMenu:Get('submenu', 'adminjobgrade'))
+            end
+        end)
+        RageUI.IsVisible(RMenu:Get('submenu', 'adminjobgrade'), function()
+            for i=1, #grade, 1 do
+                RageUI.Button(grade[i].label, "Nom : "..grade[i].name.."\nId : "..grade[i].grade, {}, true, {
+                    onSelected = function()
+                        TriggerServerEvent('PA_menuperso:setjob', selectedJob.name, grade[i].grade)
+                        Visual.Popup("Vous êtes maintenant " .. grade[i].label .. " au " .. selectedJob.label)
                     end
+                })
+            end
+        end)
+        if Config.doubleJob then
+            RageUI.IsVisible(RMenu:Get('submenu', 'admingang'), function()
+                ESX.TriggerServerCallback('PA_menuperso:getJob', function(joblist)
+                    jobList = joblist
                 end)
-                    RageUI.IsVisible(RMenu:Get('submenu', 'adminganggrade'), function()
-                        for i=1, #grade, 1 do
-                            RageUI.Button(grade[i].label, "Nom : "..grade[i].name.."\nId : "..grade[i].grade, {}, true, {
-                                onSelected = function()
-                                    TriggerServerEvent('PA_menuperso:setjob2', selectedJob.name, grade[i].grade)
-                                    Visual.Popup("Vous êtes maintenant " .. grade[i].label .. " au " .. selectedJob.label)
-                                end
-                            })
-                        end
-                    end)
-                RageUI.IsVisible(RMenu:Get('submenu', 'admincar'), function()
-                    local playerPed = GetPlayerPed(-1)
-                    local playerVeh = GetVehiclePedIsIn(playerPed)
-                    RageUI.Button("Réparer véhicule", nil, {}, true, {
+                for i=1, #jobList, 1 do
+                    RageUI.Button(jobList[i].label, jobList[i].name, {}, true, {
                         onSelected = function()
-                            admin_vehicle_repair()
+                            ESX.TriggerServerCallback('PA_menuperso:getgrade', function(gradelist)
+                                grade = gradelist
+                                selectedJob = jobList[i]
+                            end, jobList[i].name)
+                        end
+                    }, RMenu:Get('submenu', 'adminganggrade'))
+                end
+            end)
+            RageUI.IsVisible(RMenu:Get('submenu', 'adminganggrade'), function()
+                for i=1, #grade, 1 do
+                    RageUI.Button(grade[i].label, "Nom : "..grade[i].name.."\nId : "..grade[i].grade, {}, true, {
+                        onSelected = function()
+                            TriggerServerEvent('PA_menuperso:setjob2', selectedJob.name, grade[i].grade)
+                            Visual.Popup("Vous êtes maintenant " .. grade[i].label .. " au " .. selectedJob.label)
                         end
                     })
-                    RageUI.Button("Faire apparaître un véhicule", nil, {}, true, {
-                        onSelected = function()
-                            RageUI.CloseAll()
-                            admin_vehicle_spawn()
-                        end
-                    })
-                    RageUI.Button("Retourner le véhicule", nil, {}, true, {
-                        onSelected = function()
-                            admin_vehicle_flip()
-                        end
-                    })
-                    RageUI.Button("Récupérer les clés du véhicule", nil, {}, true, {
-                        onSelected = function()
-                            GiveCarKey()
-                        end
-                    })
-                    RageUI.Button("Ajouter cette voiture à votre garage", nil, {}, true, {
-                        onSelected = function()
-                            if IsPedSittingInAnyVehicle(playerPed) then
-                                local vehicleProps = ESX.Game.GetVehicleProperties(playerVeh)
-                                TriggerServerEvent('PA_VehShop:setVehicleOwned', vehicleProps)
-                            end
-                        end
-                    })
-                    RageUI.Button("Remettre de l'essence", nil, {}, true, {
-                        onSelected = function()
-                            Refuel()
-                        end
-                    })
-                    RageUI.Button("Ca envoie du gros", nil, {}, true, {
-                        onSelected = function()
-                            SetVehicleMaxSpeed(playerVeh, 999.0)
-                            SetVehicleForwardSpeed(playerVeh, 999.0)
-                        end
-                    })
-                end)
-                RageUI.IsVisible(RMenu:Get('submenu', 'adminmisc'), function()
-                    RageUI.Button("S'octroyer de l'argent", nil, {}, true, {
-                        onSelected = function()
-                            RageUI.CloseAll()
-                            admin_give_money()
-                        end
-                    })
-                    RageUI.Button("S'octroyer de l'argent (banque)", nil, {}, true, {
-                        onSelected = function()
-                            RageUI.CloseAll()
-                            admin_give_bank()
-                        end
-                    })
-                    RageUI.Button("S'octroyer de l'argent (Sale)", nil, {}, true, {
-                        onSelected = function()
-                            RageUI.CloseAll()
-                            admin_give_dirty()
-                        end
-                    })
-                    RageUI.Button("Afficher/Cacher coordonnées", nil, {}, true, {
-                        onSelected = function()
-                            modo_showcoord()
-                        end
-                    })
-                    RageUI.Button("Afficher/Cacher noms des joueurs", nil, {}, true, {
-                        onSelected = function()
-                            modo_showname()
-                        end
-                    })
-                    RageUI.Button("Changer l'apparence", nil, {}, true, {
-                        onSelected = function()
-                            RageUI.CloseAll()
-                            TriggerEvent('esx_skin:openSaveableMenu')
-                        end
-                    })
-                    RageUI.Button("Sauvegarder l'apparence", nil, {}, true, {
-                        onSelected = function()
-                            RageUI.CloseAll()
-                            save_skin()
-                        end
-                    })
-                end)
+                end
+            end)
+        end
+        RageUI.IsVisible(RMenu:Get('submenu', 'admincar'), function()
+            local playerPed = GetPlayerPed(-1)
+            local playerVeh = GetVehiclePedIsIn(playerPed)
+            RageUI.Button("Réparer véhicule", nil, {}, true, {
+                onSelected = function()
+                    admin_vehicle_repair()
+                end
+            })
+            RageUI.Button("Faire apparaître un véhicule", nil, {}, true, {
+                onSelected = function()
+                    RageUI.CloseAll()
+                    admin_vehicle_spawn()
+                end
+            })
+            RageUI.Button("Retourner le véhicule", nil, {}, true, {
+                onSelected = function()
+                    admin_vehicle_flip()
+                end
+            })
+            RageUI.Button("Récupérer les clés du véhicule", nil, {}, true, {
+                onSelected = function()
+                    GiveCarKey()
+                end
+            })
+            RageUI.Button("Ajouter cette voiture à votre garage", nil, {}, true, {
+                onSelected = function()
+                    if IsPedSittingInAnyVehicle(playerPed) then
+                        local vehicleProps = ESX.Game.GetVehicleProperties(playerVeh)
+                        TriggerServerEvent('PA_VehShop:setVehicleOwned', vehicleProps)
+                    end
+                end
+            })
+            RageUI.Button("Remettre de l'essence", nil, {}, true, {
+                onSelected = function()
+                    Refuel()
+                end
+            })
+            RageUI.Button("Ca envoie du gros", nil, {}, true, {
+                onSelected = function()
+                    SetVehicleMaxSpeed(playerVeh, 999.0)
+                    SetVehicleForwardSpeed(playerVeh, 999.0)
+                end
+            })
+        end)
+        RageUI.IsVisible(RMenu:Get('submenu', 'adminmisc'), function()
+            RageUI.Button("S'octroyer de l'argent", nil, {}, true, {
+                onSelected = function()
+                    RageUI.CloseAll()
+                    admin_give_money()
+                end
+            })
+            RageUI.Button("S'octroyer de l'argent (banque)", nil, {}, true, {
+                onSelected = function()
+                    RageUI.CloseAll()
+                    admin_give_bank()
+                end
+            })
+            RageUI.Button("S'octroyer de l'argent (Sale)", nil, {}, true, {
+                onSelected = function()
+                    RageUI.CloseAll()
+                    admin_give_dirty()
+                end
+            })
+            RageUI.Button("Afficher/Cacher coordonnées", nil, {}, true, {
+                onSelected = function()
+                    modo_showcoord()
+                end
+            })
+            RageUI.Button("Afficher/Cacher noms des joueurs", nil, {}, true, {
+                onSelected = function()
+                    modo_showname()
+                end
+            })
+            RageUI.Button("Changer l'apparence", nil, {}, true, {
+                onSelected = function()
+                    RageUI.CloseAll()
+                    TriggerEvent('esx_skin:openSaveableMenu')
+                end
+            })
+            RageUI.Button("Sauvegarder l'apparence", nil, {}, true, {
+                onSelected = function()
+                    RageUI.CloseAll()
+                    save_skin()
+                end
+            })
+        end)
     end
 end)
 
@@ -1321,20 +1354,21 @@ function RefreshMoney()
     end
 end
 
-function RefreshMoney2()
-    if ESX.PlayerData.job2 ~= nil and ESX.PlayerData.job2.grade_name == 'boss' then
-        ESX.TriggerServerCallback('esx_society:getSocietyMoney', function(money)
-            UpdateSociety2Money(money)
-        end, ESX.PlayerData.job2.name)
-    end
-end
-
 function UpdateSocietyMoney(money)
     societymoney = ESX.Math.GroupDigits(money)
 end
 
-function UpdateSociety2Money(money)
-    societymoney2 = ESX.Math.GroupDigits(money)
+if Config.doubleJob then
+    function RefreshMoney2()
+        if ESX.PlayerData.job2 ~= nil and ESX.PlayerData.job2.grade_name == 'boss' then
+            ESX.TriggerServerCallback('esx_society:getSocietyMoney', function(money)
+                UpdateSociety2Money(money)
+            end, ESX.PlayerData.job2.name)
+        end
+    end
+    function UpdateSociety2Money(money)
+        societymoney2 = ESX.Math.GroupDigits(money)
+    end
 end
 
 ---Invoke
