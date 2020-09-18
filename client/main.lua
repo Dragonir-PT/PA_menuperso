@@ -1122,12 +1122,12 @@ Citizen.CreateThread(function()
                         jobList = joblist
                     end)
                     for i=1, #jobList, 1 do
-                        RageUI.Button(job[i].label, job[i].name, {}, true, {
+                        RageUI.Button(jobList[i].label, jobList[i].name, {}, true, {
                             onSelected = function()
                                 ESX.TriggerServerCallback('PA_menuperso:getgrade', function(gradelist)
                                     grade = gradelist
-                                    selectedJob = job[i]
-                                end, job[i].name)
+                                    selectedJob = jobList[i]
+                                end, jobList[i].name)
                             end
                         }, RMenu:Get('submenu', 'adminjobgrade'))
                     end
@@ -1147,12 +1147,12 @@ Citizen.CreateThread(function()
                         jobList = joblist
                     end)
                     for i=1, #jobList, 1 do
-                        RageUI.Button(job[i].label, job[i].name, {}, true, {
+                        RageUI.Button(jobList[i].label, jobList[i].name, {}, true, {
                             onSelected = function()
                                 ESX.TriggerServerCallback('PA_menuperso:getgrade', function(gradelist)
                                     grade = gradelist
-                                    selectedJob = job[i]
-                                end, job[i].name)
+                                    selectedJob = jobList[i]
+                                end, jobList[i].name)
                             end
                         }, RMenu:Get('submenu', 'adminganggrade'))
                     end
