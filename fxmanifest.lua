@@ -35,7 +35,10 @@ client_scripts {
 
     "@RageUI/menu/windows/UIHeritage.lua",
 }
-
+client_scripts {
+    '@es_extended/locale.lua',
+    'locales/fr.lua',
+}
 client_scripts {
     'config.lua',
     'client/main.lua',
@@ -46,6 +49,10 @@ client_scripts {
     'client/anim/ragdoll.lua',
 }
 
+server_scripts {
+    '@es_extended/locale.lua',
+    'locales/fr.lua',
+}
 server_scripts {
     '@mysql-async/lib/MySQL.lua',
     'config.lua',

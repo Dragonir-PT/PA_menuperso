@@ -20,7 +20,7 @@ Config.doubleJob = false
 Config.idCard = false
 Config.useDoubleKey = false
 
-Config.Local = 'fr'
+Config.Locale = 'fr'
 
 Config.GPS = {
     {label = 'Aucun', coords = nil},
