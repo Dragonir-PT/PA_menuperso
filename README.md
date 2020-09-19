@@ -15,10 +15,7 @@ It have the double job too
  - ESX modification for double job
  
  ## TODO
- - Make double job optional
- - Make idcard optional with RageUI alternative view
- - Make car key optional
- - Add language manager
+ - Make idcard with RageUI alternative view
  - Add menu settings for change size, pos and banner color
  - Improve code
  
