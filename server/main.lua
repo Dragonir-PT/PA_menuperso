@@ -278,7 +278,7 @@ AddEventHandler("AdminMenu:giveCash", function(money)
 
     xPlayer.addMoney((total))
     local item = ' $ d\'argent !'
-    local message = 'Tu t\'est GIVE '
+    local message = 'Tu t\'es GIVE '
     TriggerClientEvent('esx:showNotification', _source, message.." "..total.." "..item)
 
 end)

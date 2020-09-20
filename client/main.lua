@@ -74,6 +74,13 @@ local Menu = {
             }
         }
     },
+    admin = {
+        noClip = false,
+        godMode = false,
+        ghostMode = false,
+        coords = false,
+        showName
+    }
 }
 local playerRetuned = {}
 local societymoney, societymoney2 = nil, nil
@@ -1045,39 +1052,76 @@ Citizen.CreateThread(function()
         RageUI.IsVisible(RMenu:Get('submenu', 'admintp'), function()
             RageUI.Button(_U('summon'), nil, {}, true, {
                 onSelected = function()
-                    admin_tp_playertome()
+                    local post, id = CheckQuantity(KeyboardInput(_U('enter_id'), '', 5))
+                    if post then
+                        if id ~= nil and id ~= GetPlayerFromServerId(GetPlayerPed(-1)) then
+                            local targetPlayer = GetPlayerFromServerId(tonumber(id))
+                            local playerPedCoords = GetEntityCoords(GetPlayerPed(-1))
+                            SetEntityCoords(targetPlayer, playerPedCoords)
+                        end
+                    else
+                        Visual.Popup(_U('invalid_entry'))
+                    end
                 end
             })
             RageUI.Button(_U('marker'), nil, {}, true, {
                 onSelected = function()
-                    admin_tp_marcker()
+                    local WaypointHandle = GetFirstBlipInfoId(8)
+                    if DoesBlipExist(WaypointHandle) then
+                        local coord = GetBlipInfoIdCoord(WaypointHandle)
+                        SetEntityCoordsNoOffset(PlayerPedId(), coord.x, coord.y, -199.5, false, false, false, true)
+                        Visual.Popup(_U('tp_on_marker'))
+                    else
+                        Visual.Popup(_U('no_marker'))
+                    end
                 end
             })
             RageUI.Button(_U('goto'), nil, {}, true, {
                 onSelected = function()
-                    admin_tp_toplayer()
+                    local post, id = CheckQuantity(KeyboardInput(_U('enter_id'), '', 5))
+                    if post then
+                        if id ~= nil and id ~= GetPlayerFromServerId(GetPlayerPed(-1)) then
+                            local targetPlayer = GetPlayerFromServerId(tonumber(id))
+                            local playerPedCoords = GetEntityCoords(GetPlayerPed(-1))
+                            SetEntityCoords(playerPedCoords, targetPlayer)
+                        end
+                    else
+                        Visual.Popup(_U('invalid_entry'))
+                    end
                 end
             })
             RageUI.Button(_U('coord'), nil, {}, true, {
                 onSelected = function()
-                    admin_tp_pos()
+                    local x = KeyboardInput("X", '', 10)
+                    if x ~= nil then
+                        local y = KeyboardInput("Y", '', 10)
+                        if y ~= nil then
+                            local z = KeyboardInput("Z", '', 10)
+                            if z ~= nil then
+                                SetEntityCoords(GetPlayerPed(-1), x + 0.001, y + 0.001, z + 0.001)
+                            end
+                        end
+                    end
                 end
             })
         end)
         RageUI.IsVisible(RMenu:Get('submenu', 'adminplayer'), function()
-            RageUI.Button(_U('noclip'), nil, {}, true, {
-                onSelected = function()
-                    admin_no_clip()
+            RageUI.Checkbox(_U('noclip'), nil, Menu.admin.noClip, {}, {
+                onSelected = function(index)
+                    Menu.admin.noClip = index
+                    admin_no_clip(Menu.admin.noClip)
                 end
             })
-            RageUI.Button(_U('god'), nil, {}, true, {
-                onSelected = function()
-                    admin_godmode()
+           RageUI.Checkbox(_U('god'), nil, Menu.admin.godMode, {}, {
+                onSelected = function(index)
+                    Menu.admin.godMode = index
+                    SetEntityInvincible(PlayerPedId(), Menu.admin.godMode)
                 end
             })
-            RageUI.Button(_U('ghost'), nil, {}, true, {
-                onSelected = function()
-                    admin_mode_fantome()
+            RageUI.Checkbox(_U('ghost'), nil, Menu.admin.ghostMode, {}, {
+                onSelected = function(index)
+                    Menu.admin.ghostMode = index
+                    SetEntityVisible(PlayerPedId(), not Menu.admin.ghostMode, false)
                 end
             })
         end)
@@ -1162,23 +1206,54 @@ Citizen.CreateThread(function()
             local playerVeh = GetVehiclePedIsIn(playerPed)
             RageUI.Button(_U('repair_veh'), nil, {}, true, {
                 onSelected = function()
-                    admin_vehicle_repair()
+                    local ped = GetPlayerPed(-1)
+                    local car = GetVehiclePedIsUsing(ped)
+
+                    SetVehicleFixed(car)
+                    SetVehicleDirtLevel(car, 0.0)
                 end
             })
             RageUI.Button(_U('spawn_veh'), nil, {}, true, {
                 onSelected = function()
-                    RageUI.CloseAll()
-                    admin_vehicle_spawn()
+                    local carName = KeyboardInput(_U('car_name'), 'elegy', 20)
+                    if carName ~= nil then
+                        RequestModel(carName)
+                        while not HasModelLoaded(carName) do
+                            Citizen.Wait(0)
+                        end
+                        ESX.Game.SpawnVehicle(carName, GetEntityCoords(PlayerPedId()), GetEntityHeading(PlayerPedId()), function(vehicle)
+                            TaskWarpPedIntoVehicle(PlayerPedId(), vehicle, -1)
+                        end)
+                    end
                 end
             })
             RageUI.Button(_U('flip_veh'), nil, {}, true, {
                 onSelected = function()
-                    admin_vehicle_flip()
+                    local player = GetPlayerPed(-1)
+                    local posdepmenu = GetEntityCoords(player)
+                    local carTargetDep = GetClosestVehicle(posdepmenu['x'], posdepmenu['y'], posdepmenu['z'], 10.0,0,70)
+                    if carTargetDep ~= nil then
+                        platecarTargetDep = GetVehicleNumberPlateText(carTargetDep)
+                    end
+                    local playerCoords = GetEntityCoords(GetPlayerPed(-1))
+                    playerCoords = playerCoords + vector3(0, 2, 0)
+
+                    SetEntityCoords(carTargetDep, playerCoords)
+
+                    Visual.Popup(_U('veh_fliped'))
                 end
             })
             RageUI.Button(_U('give_admin_key'), nil, {}, true, {
                 onSelected = function()
-                    GiveCarKey()
+                    local vehicle = GetVehiclePedIsIn( GetPlayerPed(-1), false )
+                    local plaque = GetVehicleNumberPlateText(vehicle)
+
+
+                    if GetPedInVehicleSeat( vehicle, -1 ) == GetPlayerPed(-1) then
+                        TriggerServerEvent('esx_vehiclelock:registerkey', plaque, GetPlayerServerId(closestPlayer))
+                    else
+                        Visual.Popup(_U('inside_veh'))
+                    end
                 end
             })
             RageUI.Button(_U('owned_veh'), nil, {}, true, {
@@ -1191,7 +1266,8 @@ Citizen.CreateThread(function()
             })
             RageUI.Button(_U('refuel'), nil, {}, true, {
                 onSelected = function()
-                    Refuel()
+                    local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1), false)
+                    SetVehicleFuelLevel(vehicle, 100.0)
                 end
             })
             RageUI.Button(_U('go_fast'), nil, {}, true, {
@@ -1204,30 +1280,48 @@ Citizen.CreateThread(function()
         RageUI.IsVisible(RMenu:Get('submenu', 'adminmisc'), function()
             RageUI.Button(_U('give_money'), nil, {}, true, {
                 onSelected = function()
-                    RageUI.CloseAll()
-                    admin_give_money()
+                    local post, amount = CheckQuantity(KeyboardInput(_U('amount'), '', 20))
+                    if post then
+                        if amount > 0 and amount ~= nil then
+                            TriggerServerEvent('AdminMenu:giveCash', amount)
+                        end
+                    end
                 end
             })
             RageUI.Button(_U('give_bank'), nil, {}, true, {
                 onSelected = function()
-                    RageUI.CloseAll()
-                    admin_give_bank()
+                    local post, amount = CheckQuantity(KeyboardInput(_U('amount'), '', 20))
+                    if post then
+                        if amount > 0 and amount ~= nil then
+                            TriggerServerEvent('AdminMenu:giveBank', amount)
+                        end
+                    end
                 end
             })
             RageUI.Button(_U('give_black'), nil, {}, true, {
                 onSelected = function()
-                    RageUI.CloseAll()
-                    admin_give_dirty()
+                    local post, amount = CheckQuantity(KeyboardInput(_U('amount'), '', 20))
+                    if post then
+                        if amount > 0 and amount ~= nil then
+                            TriggerServerEvent('AdminMenu:giveDirtyMoney', amount)
+                        end
+                    end
                 end
             })
-            RageUI.Button(_U('show_coord'), nil, {}, true, {
-                onSelected = function()
-                    modo_showcoord()
+            RageUI.Checkbox(_U('show_coord'), nil, Menu.admin.coords, {}, {
+                onSelected = function(index)
+                    Menu.admin.coords = index
                 end
             })
-            RageUI.Button(_U('show_name'), nil, {}, true, {
-                onSelected = function()
-                    modo_showname()
+            RageUI.Checkbox(_U('show_name'), nil, Menu.admin.showName, {}, {
+                onSelected = function(index)
+                    Menu.admin.showName = index
+                end,
+                onChecked = function()
+                    Visual.Popup(_U('notif_playername'))
+                end,
+                onUnChecked = function()
+                    Visual.Popup(_U('notif_playername'))
                 end
             })
             RageUI.Button(_U('change_skin'), nil, {}, true, {
@@ -1239,7 +1333,9 @@ Citizen.CreateThread(function()
             RageUI.Button(_U('save_skin'), nil, {}, true, {
                 onSelected = function()
                     RageUI.CloseAll()
-                    save_skin()
+                    TriggerEvent('skinchanger:getSkin', function(skin)
+                        TriggerServerEvent('esx_skin:save', skin)
+                    end)
                 end
             })
         end)
@@ -1328,125 +1424,13 @@ if Config.doubleJob then
     end
 end
 
----Invoke
-function admin_tp_playertome()
-    DisplayOnscreenKeyboard(true, "FMMC_KEY_TIP8", "", "", "", "", "", 120)
-    Visual.Popup(_U('enter_id'))
-    inputteleport = 1
-end
-
-Citizen.CreateThread(function()
-    while true do
-        Wait(0)
-        if inputteleport == 1 then
-            if UpdateOnscreenKeyboard() == 3 then
-                inputteleport = 0
-            elseif UpdateOnscreenKeyboard() == 1 then
-                inputteleport = 2
-            elseif UpdateOnscreenKeyboard() == 2 then
-                inputteleport = 0
-            end
-        end
-        if inputteleport == 2 then
-            local teleportply = GetOnscreenKeyboardResult()
-            local playerPed = GetPlayerFromServerId(tonumber(teleportply))
-            local teleportPed = GetEntityCoords(GetPlayerPed(-1))
-            SetEntityCoords(playerPed, teleportPed)
-
-            inputteleport = 0
-        end
-    end
-end)
-
----TP Marker
-function admin_tp_marcker()
-
-    ESX.TriggerServerCallback('PA_menuperso:getUsergroup', function(group)
-        playergroup = group
-
-        if playergroup == 'admin' or playergroup == 'superadmin' or playergroup == 'owner' then
-            local playerPed = GetPlayerPed(-1)
-            local WaypointHandle = GetFirstBlipInfoId(8)
-            if DoesBlipExist(WaypointHandle) then
-                local coord = Citizen.InvokeNative(0xFA7C7F0AADF25D09, WaypointHandle, Citizen.ResultAsVector())
-                --SetEntityCoordsNoOffset(playerPed, coord.x, coord.y, coord.z, false, false, false, true)
-                SetEntityCoordsNoOffset(playerPed, coord.x, coord.y, -199.5, false, false, false, true)
-                Visual.Popup(_U('tp_on_marker'))
-            else
-                Visual.Popup(_U('no_marker'))
-            end
-        end
-
-    end)
-end
-
----GOTO
-function admin_tp_toplayer()
-    DisplayOnscreenKeyboard(true, "FMMC_KEY_TIP8", "", "", "", "", "", 120)
-    Visual.Popup(_U('enter_id'))
-    inputgoto = 1
-end
-
-Citizen.CreateThread(function()
-    while true do
-        Wait(0)
-        if inputgoto == 1 then
-            if UpdateOnscreenKeyboard() == 3 then
-                inputgoto = 0
-            elseif UpdateOnscreenKeyboard() == 1 then
-                inputgoto = 2
-            elseif UpdateOnscreenKeyboard() == 2 then
-                inputgoto = 0
-            end
-        end
-        if inputgoto == 2 then
-            local gotoply = GetOnscreenKeyboardResult()
-            local playerPed = GetPlayerPed(-1)
-            local teleportPed = GetEntityCoords(GetPlayerPed(GetPlayerFromServerId(tonumber(gotoply))))
-            SetEntityCoords(playerPed, teleportPed)
-
-            inputgoto = 0
-        end
-    end
-end)
-
----TP Coord
-function admin_tp_pos()
-    DisplayOnscreenKeyboard(true, "FMMC_KEY_TIP8", "", "", "", "", "", 120)
-    Visual.Popup(_U('enter_pos'))
-    inputpos = 1
-end
-
-Citizen.CreateThread(function()
-    while true do
-        Wait(0)
-        if inputpos == 1 then
-            if UpdateOnscreenKeyboard() == 3 then
-                inputpos = 0
-            elseif UpdateOnscreenKeyboard() == 1 then
-                inputpos = 2
-            elseif UpdateOnscreenKeyboard() == 2 then
-                inputpos = 0
-            end
-        end
-        if inputpos == 2 then
-            local pos = GetOnscreenKeyboardResult() -- GetOnscreenKeyboardResult RECUPERE LA POSITION RENTRER PAR LE JOUEUR
-            local _,_,x,y,z = string.find( pos or "0,0,0", "([%d%.]+),([%d%.]+),([%d%.]+)" )
-
-            --SetEntityCoords(GetPlayerPed(-1), x, y, z)
-            SetEntityCoords(GetPlayerPed(-1), x+0.0001, y+0.0001, z+0.0001) -- TP LE JOUEUR A LA POSITION
-            inputpos = 0
-        end
-    end
-end)
-
 ---Noclip
 local noclip = false
 local noclip_speed = 1.0
 
-function admin_no_clip()
-    noclip = not noclip
+function admin_no_clip(noclipState)
     local ped = GetPlayerPed(-1)
+    noclip = noclipState
     if noclip then -- activé
         SetEntityInvincible(ped, true)
         SetEntityVisible(ped, false, false)
@@ -1481,10 +1465,6 @@ function getCamDirection()
     return x,y,z
 end
 
-function isNoclip()
-    return noclip
-end
-
 -- noclip/invisible
 Citizen.CreateThread(function()
     while true do
@@ -1517,267 +1497,34 @@ Citizen.CreateThread(function()
     end
 end)
 
----God mode
-function admin_godmode()
-    local godmode = not godmode
-    local ped = GetPlayerPed(-1)
-
-    if godmode then -- activé
-        SetEntityInvincible(ped, true)
-        Visual.Popup(_U('god_mode_on'))
-    else
-        SetEntityInvincible(ped, false)
-        Visual.Popup(_U('god_mode_off'))
-    end
-end
-
-function admin_mode_fantome()
-    invisible = not invisible
-    local ped = GetPlayerPed(-1)
-
-    if invisible then -- activé
-        SetEntityVisible(ped, false, false)
-        Visual.Popup(_U('ghost_mode_on'))
-    else
-        SetEntityVisible(ped, true, false)
-        Visual.Popup(_U('ghost_mode_off'))
-    end
-end
-
----Repair vehicle
-function admin_vehicle_repair()
-
-    local ped = GetPlayerPed(-1)
-    local car = GetVehiclePedIsUsing(ped)
-
-    SetVehicleFixed(car)
-    SetVehicleDirtLevel(car, 0.0)
-
-end
-
----Spawn vehicle
-function admin_vehicle_spawn()
-    DisplayOnscreenKeyboard(true, "FMMC_KEY_TIP8", "", "", "", "", "", 120)
-    Visual.Popup(_U('enter_veh_name'))
-    inputvehicle = 1
-end
-
-Citizen.CreateThread(function()
-    while true do
-        Wait(0)
-        if inputvehicle == 1 then
-            if UpdateOnscreenKeyboard() == 3 then
-                inputvehicle = 0
-            elseif UpdateOnscreenKeyboard() == 1 then
-                inputvehicle = 2
-            elseif UpdateOnscreenKeyboard() == 2 then
-                inputvehicle = 0
-            end
-        end
-        if inputvehicle == 2 then
-            local vehicleidd = GetOnscreenKeyboardResult()
-
-            local car = GetHashKey(vehicleidd)
-
-            Citizen.CreateThread(function()
-                Citizen.Wait(10)
-                RequestModel(car)
-                while not HasModelLoaded(car) do
-                    Citizen.Wait(0)
-                end
-                local x,y,z = table.unpack(GetEntityCoords(GetPlayerPed(-1),true))
-                veh = CreateVehicle(car, x,y,z, 0.0, true, false)
-                SetEntityVelocity(veh, 2000)
-                SetVehicleOnGroundProperly(veh)
-                SetVehicleHasBeenOwnedByPlayer(veh,true)
-                local id = NetworkGetNetworkIdFromEntity(veh)
-                SetNetworkIdCanMigrate(id, true)
-                SetVehRadioStation(veh, "OFF")
-                SetPedIntoVehicle(GetPlayerPed(-1),  veh,  -1)
-            end)
-
-            inputvehicle = 0
-        end
-    end
-end)
-
----Flip vehicle
-function admin_vehicle_flip()
-    local player = GetPlayerPed(-1)
-    local posdepmenu = GetEntityCoords(player)
-    local carTargetDep = GetClosestVehicle(posdepmenu['x'], posdepmenu['y'], posdepmenu['z'], 10.0,0,70)
-    if carTargetDep ~= nil then
-        platecarTargetDep = GetVehicleNumberPlateText(carTargetDep)
-    end
-    local playerCoords = GetEntityCoords(GetPlayerPed(-1))
-    playerCoords = playerCoords + vector3(0, 2, 0)
-
-    SetEntityCoords(carTargetDep, playerCoords)
-
-    Visual.Popup(_U('veh_fliped'))
-end
-
----Give key
-function GiveCarKey()
-    local vehicle = GetVehiclePedIsIn( GetPlayerPed(-1), false )
-    local plaque = GetVehicleNumberPlateText(vehicle)
-
-
-    if GetPedInVehicleSeat( vehicle, -1 ) == GetPlayerPed(-1) then
-        TriggerServerEvent('esx_vehiclelock:registerkey', plaque, GetPlayerServerId(closestPlayer))
-    else
-        Visual.Popup(_U('inside_veh'))
-    end
-end
-
----Refuel
-function Refuel()
-    local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1), false)
-    SetVehicleFuelLevel(vehicle, 100.0)
-end
-
----Give money
-function admin_give_money()
-    DisplayOnscreenKeyboard(true, "FMMC_KEY_TIP8", "", "", "", "", "", 120)
-    inputmoney = 1
-end
-
-Citizen.CreateThread(function()
-    while true do
-        Wait(0)
-        if inputmoney == 1 then
-            if UpdateOnscreenKeyboard() == 3 then
-                inputmoney = 0
-            elseif UpdateOnscreenKeyboard() == 1 then
-                inputmoney = 2
-            elseif UpdateOnscreenKeyboard() == 2 then
-                inputmoney = 0
-            end
-        end
-        if inputmoney == 2 then
-            local repMoney = GetOnscreenKeyboardResult()
-            local money = tonumber(repMoney)
-
-            TriggerServerEvent('AdminMenu:giveCash', money)
-            inputmoney = 0
-        end
-    end
-end)
-
----Give Bank
-function admin_give_bank()
-    DisplayOnscreenKeyboard(true, "FMMC_KEY_TIP8", "", "", "", "", "", 120)
-    inputmoneybank = 1
-end
-
-Citizen.CreateThread(function()
-    while true do
-        Wait(0)
-        if inputmoneybank == 1 then
-            if UpdateOnscreenKeyboard() == 3 then
-                inputmoneybank = 0
-            elseif UpdateOnscreenKeyboard() == 1 then
-                inputmoneybank = 2
-            elseif UpdateOnscreenKeyboard() == 2 then
-                inputmoneybank = 0
-            end
-        end
-        if inputmoneybank == 2 then
-            local repMoney = GetOnscreenKeyboardResult()
-            local money = tonumber(repMoney)
-
-            TriggerServerEvent('AdminMenu:giveBank', money)
-            inputmoneybank = 0
-        end
-    end
-end)
-
----Give dirt
-function admin_give_dirty()
-    DisplayOnscreenKeyboard(true, "FMMC_KEY_TIP8", "", "", "", "", "", 120)
-    inputmoneydirty = 1
-end
-
-Citizen.CreateThread(function()
-    while true do
-        Wait(0)
-        if inputmoneydirty == 1 then
-            if UpdateOnscreenKeyboard() == 3 then
-                inputmoneydirty = 0
-            elseif UpdateOnscreenKeyboard() == 1 then
-                inputmoneydirty = 2
-            elseif UpdateOnscreenKeyboard() == 2 then
-                inputmoneydirty = 0
-            end
-        end
-        if inputmoneydirty == 2 then
-            local repMoney = GetOnscreenKeyboardResult()
-            local money = tonumber(repMoney)
-
-            TriggerServerEvent('AdminMenu:giveDirtyMoney', money)
-            inputmoneydirty = 0
-        end
-    end
-end)
-
 ---Show coord
-function modo_showcoord()
-    if showcoord then
-        showcoord = false
-    else
-        showcoord = true
-    end
-end
-
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(0)
-
-        if showcoord then
+        if Menu.admin.coords then
             local playerPos = GetEntityCoords(GetPlayerPed(-1))
             local playerHeading = GetEntityHeading(GetPlayerPed(-1))
             Visual.Subtitle(_U('coords', playerPos.x, playerPos.y, playerPos.z, playerHeading))
         end
-
     end
 end)
 
 ---Show name
-function modo_showname()
-    if showname then
-        showname = false
-    else
-        Visual.Popup(_U('notif_playername'))
-        showname = true
-    end
-end
-
 Citizen.CreateThread(function()
     while true do
-        Wait( 1 )
-        if showname then
-            for id = 0, 200 do
-                if NetworkIsPlayerActive( id ) and GetPlayerPed( id ) ~= GetPlayerPed( -1 ) then
-                    ped = GetPlayerPed( id )
-                    blip = GetBlipFromEntity( ped )
-                    headId = Citizen.InvokeNative( 0xBFEFE3321A3F5015, ped, (GetPlayerServerId( id )..' - '..GetPlayerName( id )), false, false, "", false )
+        Citizen.Wait(0)
+        for _,id in ipairs(GetActivePlayers()) do
+            if Menu.admin.showName then
+                if NetworkIsPlayerActive(id) and GetPlayerPed(id) ~= GetPlayerPed(-1) then
+                    ped = GetPlayerPed(id)
+                    headId = CreateFakeMpGamerTag(ped, (GetPlayerServerId( id )..' - '..GetPlayerName( id )), 0, 0, "", 0)
                 end
-            end
-        else
-            for id = 0, 200 do
-                if NetworkIsPlayerActive( id ) and GetPlayerPed( id ) ~= GetPlayerPed( -1 ) then
-                    ped = GetPlayerPed( id )
-                    blip = GetBlipFromEntity( ped )
-                    headId = Citizen.InvokeNative( 0xBFEFE3321A3F5015, ped, (' '), false, false, "", false )
+            else
+                if NetworkIsPlayerActive(id) and GetPlayerPed(id) ~= GetPlayerPed(-1) then
+                    ped = GetPlayerPed(id)
+                    headId = CreateFakeMpGamerTag(ped, '', 0, 0, "", 0)
                 end
             end
         end
     end
 end)
-
----Save skin
-function save_skin()
-    TriggerEvent('skinchanger:getSkin', function(skin)
-        TriggerServerEvent('esx_skin:save', skin)
-    end)
-end

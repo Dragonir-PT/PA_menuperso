@@ -133,6 +133,7 @@ Locales['fr'] = {
     ['marker'] = "TP sur marqueur",
     ['goto'] = "TP sur joueur",
     ['coord'] = "TP sur coords",
+    ['cant_teleport'] = "Téléportation impossible",
 
     ['player'] = "Joueur",
     ['noclip'] = "No clip",
@@ -152,6 +153,7 @@ Locales['fr'] = {
     ['vehicle'] = "Véhicule",
     ['repair_veh'] = "Réparer véhicule",
     ['spawn_veh'] = "Faire apparaître un véhicule",
+    ['car_name'] = "Nom du véhicule",
     ['flip_veh'] = "Retourner le véhicule",
     ['give_admin_key'] = "Récupérer les clés du véhicule",
     ['owned_veh'] = "Ajouter cette voiture à votre garage",
@@ -181,7 +183,7 @@ Locales['fr'] = {
     ['ghost_mode_off'] = "Mode fantôme ~r~ désactivé",
     ['enter_veh_name'] = "~b~Entrez le nom du véhicule...",
     ['veh_fliped'] = "Véhicule retourné",
-    ['notif_playername'] = "Ouvrir/Fermer le menu pause pour afficher les noms",
+    ['notif_playername'] = "Ouvrir/Fermer le menu pause pour actualiser les noms",
 
-    ['coords'] = "~r~X~s~: %s ~b~Y~s~: %s ~g~Z~s~: %s ~y~Rotation~s~: %s",
+    ['coords'] = "~r~X~s~: %s\n ~b~Y~s~: %s\n ~g~Z~s~: %s\n ~y~Rotation~s~: %s",
 }
