@@ -83,7 +83,7 @@ local grade = {}
 local playergroup
 
 Citizen.CreateThread(function()
-    while true do
+    while ESX == nil do
         Citizen.Wait(1000)
         TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
         while ESX.GetPlayerData().job == nil do
@@ -281,7 +281,7 @@ Citizen.CreateThread(function()
                     RageUI.Button(_U('gang_manager'), nil, {RightLabel = ESX.PlayerData.job2.label}, true, {}, RMenu:Get('submenu', 'gang'))
                 end
             end
-            RageUI.Button(_U('sav_pos'), nil, {}, true, {
+            RageUI.Button(_U('save_pos'), nil, {}, true, {
                 onSelected = function()
                     TriggerServerEvent('PA_menuperso:SavePos')
                     Visual.Popup(_U('notif_save'))
