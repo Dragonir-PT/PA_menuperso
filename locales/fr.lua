@@ -129,10 +129,10 @@ Locales['fr'] = {
     ['admin'] = "Administration",
 
     ['tp'] = "TP",
-    ['summon'] = "TP sur soi",
+    ['summon'] = "TP sur sois",
     ['marker'] = "TP sur marqueur",
     ['goto'] = "TP sur joueur",
-    ['coord'] = "TP sur coord",
+    ['coord'] = "TP sur coords",
 
     ['player'] = "Joueur",
     ['noclip'] = "No clip",
@@ -156,7 +156,7 @@ Locales['fr'] = {
     ['give_admin_key'] = "Récupérer les clés du véhicule",
     ['owned_veh'] = "Ajouter cette voiture à votre garage",
     ['refuel'] = "Remettre de l'essence",
-    ['gofast'] = "Ca envoie du gros",
+    ['go_fast'] = "Ca envoie du gros",
 
     ['other'] = "Autre",
     ['give_money'] = "S'octroyer de l'argent",
@@ -164,7 +164,7 @@ Locales['fr'] = {
     ['give_black'] = "S'octroyer de l'argent (Sale)",
     ['show_coord'] = "Afficher/Cacher coordonnées",
     ['show_name'] = "Afficher/Cacher noms des joueurs",
-    ['change_name'] = "Changer l'apparence",
+    ['change_skin'] = "Changer l'apparence",
     ['save_skin'] = "Sauvegarder l'apparence",
 
     --popup

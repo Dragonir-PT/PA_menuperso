@@ -1040,7 +1040,7 @@ Citizen.CreateThread(function()
                 RageUI.Button(_U('gang_list'), nil, {}, true, {}, RMenu:Get('submenu', 'admingang'))
             end
             RageUI.Button(_U('vehicle'), nil, {}, true, {}, RMenu:Get('submenu', 'admincar'))
-            RageUI.Button(_u('other'), nil, {}, true, {}, RMenu:Get('submenu', 'adminmisc'))
+            RageUI.Button(_U('other'), nil, {}, true, {}, RMenu:Get('submenu', 'adminmisc'))
         end)
         RageUI.IsVisible(RMenu:Get('submenu', 'admintp'), function()
             RageUI.Button(_U('summon'), nil, {}, true, {
