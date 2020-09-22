@@ -818,7 +818,7 @@ Citizen.CreateThread(function()
                     end
                 end
             })
-            RageUI.Button(_U('open_capot'), nil, {}, true, {
+            RageUI.Button(_U('open_hood'), nil, {}, true, {
                 onSelected = function()
                     if not IsPedSittingInAnyVehicle(plyPed) then
                         Visual.Popup(_U('inside_veh'))

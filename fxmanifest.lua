@@ -37,7 +37,7 @@ client_scripts {
 }
 client_scripts {
     '@es_extended/locale.lua',
-    'locales/fr.lua',
+    'locales/*.lua',
 }
 client_scripts {
     'config.lua',
@@ -51,7 +51,7 @@ client_scripts {
 
 server_scripts {
     '@es_extended/locale.lua',
-    'locales/fr.lua',
+    'locales/*.lua',
 }
 server_scripts {
     '@mysql-async/lib/MySQL.lua',

@@ -63,7 +63,7 @@ Locales['fr'] = {
     ['inside_veh'] = "Vous devez être dans un véhicule",
     ['open_door'] = "~g~Ouvrir~s~/~r~Fermer~s~ la porte",
     ['open_window'] = "~g~Ouvrir~s~/~r~Fermer~s~ la fenêtre",
-    ['open_capot'] = "~g~Ouvrir~s~/~r~Fermer~s~ le capot",
+    ['open_hood'] = "~g~Ouvrir~s~/~r~Fermer~s~ le capot",
     ['open_trunk'] = "~g~Ouvrir~s~/~r~Fermer~s~ le coffre",
     --state
     ['perfect'] = "~g~Parfait",
