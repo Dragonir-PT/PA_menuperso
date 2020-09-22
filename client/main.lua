@@ -183,8 +183,8 @@ RMenu.Add('submenu', 'adminitem', RageUI.CreateSubMenu(RMenu:Get('submenu', 'adm
 RMenu.Add('submenu', 'adminjob', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('job_list')))
 RMenu.Add('submenu', 'adminjobgrade', RageUI.CreateSubMenu(RMenu:Get('submenu', 'adminjob'), Config.ServerName, _U('grade_list')))
 if Config.doubleJob then
-    RMenu.Add('submenu', 'admingang', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, "Gang"))
-    RMenu.Add('submenu', 'adminganggrade', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admingang'), Config.ServerName, "Grade"))
+    RMenu.Add('submenu', 'admingang', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('gang_list')))
+    RMenu.Add('submenu', 'adminganggrade', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admingang'), Config.ServerName, _U('grade_list')))
 end
 RMenu.Add('submenu', 'admincar', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('vehicle')))
 RMenu.Add('submenu', 'adminmisc', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('other')))

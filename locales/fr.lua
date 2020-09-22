@@ -121,6 +121,7 @@ Locales['fr'] = {
 
     --gang
     ['gang_manager'] = "Gestion organisation",
+    ['gang_list'] = "Gang",
     ['gang_bank'] = "Compte organisation",
 
     ['save_pos'] = "Sauvegarder la position",
