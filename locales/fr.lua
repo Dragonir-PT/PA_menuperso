@@ -6,6 +6,7 @@ Locales['fr'] = {
     ['inv_label'] = "%s (%s)",
     ['inv_desc'] = "%s Kg / %s Kg",
 
+    ['what_do'] = "Que voulez vous faire?",
     ['use'] = "Utiliser",
     ['give'] = "Donner",
     ['give_label'] = "%s (%s)",
@@ -125,6 +126,19 @@ Locales['fr'] = {
     ['save_pos'] = "Sauvegarder la position",
     ['notif_save'] = "~b~Position sauvegarder",
 
+    --settings
+    ['settings'] = "Paramètre",
+    ['color_settings'] = "Couleurs",
+    ['red'] = "rouge",
+    ['green'] = "vert",
+    ['blue'] = "bleu",
+    ['alpha'] = "opacité",
+    ['size'] = "Taille",
+    ['menu_size'] = "Largeur",
+    ['size_percent'] = "Poucentage taille",
+    ['confirm'] = "confirmer",
+    ['reset'] = "Réinitialiser",
+
     --admin
     ['admin'] = "Administration",
 
@@ -145,6 +159,7 @@ Locales['fr'] = {
     ['give_item'] = "Vous vous êtes donné ~y~x%s ~b~%s",
 
     ['job_list'] = "Job",
+    ['grade_list'] = "Grades",
     ['grade_list_desc'] = "Nom : %s\nId : %s",
     ['new_grad_notif'] = "Vous êtes maintenant %s au %s",
 

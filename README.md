@@ -17,6 +17,6 @@ It have the double job too
  
  ## TODO
  - Make idcard with RageUI alternative view
- - Add menu settings for change size, pos and banner color
  - Improve code
+ - Add language
  

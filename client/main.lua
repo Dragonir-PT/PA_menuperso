@@ -74,6 +74,21 @@ local Menu = {
             }
         }
     },
+    Settings = {
+        color = {
+            red = {},
+            indexRed = 1,
+            green = {},
+            indexGreen = 1,
+            blue = {},
+            indexBlue = 1,
+            alpha = {},
+            indexAlpha = 1
+        },
+        size = {"NativeUI", "RageUI"},
+        indexSize = 1,
+        sizeCustom = 0.5
+    },
     admin = {
         noClip = false,
         godMode = false,
@@ -82,12 +97,20 @@ local Menu = {
         showName
     }
 }
+for i=0, 255, 1 do
+    table.insert(Menu.Settings.color.red, i)
+    table.insert(Menu.Settings.color.green, i)
+    table.insert(Menu.Settings.color.blue, i)
+    table.insert(Menu.Settings.color.alpha, i)
+end
 local playerRetuned = {}
 local societymoney, societymoney2 = nil, nil
 local jobList = {}
 local selectedJob = {}
 local grade = {}
 local playergroup
+local menuParam = {}
+if GetResourceKvpString("menuParam") ~= nil then menuParam = json.decode(GetResourceKvpString("menuParam")) print(GetResourceKvpString("menuParam")) else print("Aucun paramètre trouver") end
 
 Citizen.CreateThread(function()
     while ESX == nil do
@@ -126,42 +149,45 @@ RMenu.Add('main', 'menuperso', RageUI.CreateMenu(Config.ServerName, "Menu person
 RMenu.Add('submenu', 'me', RageUI.CreateSubMenu(RMenu:Get('main', 'menuperso'), Config.ServerName, _U('me')))
 
 RMenu.Add('submenu', 'inventory', RageUI.CreateSubMenu(RMenu:Get('submenu', 'me'), Config.ServerName, _U('inventory')))
-RMenu.Add('submenu', 'invaction', RageUI.CreateSubMenu(RMenu:Get('submenu', 'inventory'), Config.ServerName, "Que voulez-vous faire?"))
+RMenu.Add('submenu', 'invaction', RageUI.CreateSubMenu(RMenu:Get('submenu', 'inventory'), Config.ServerName, _U('what_do')))
 RMenu.Add('submenu', 'give', RageUI.CreateSubMenu(RMenu:Get('submenu', 'invaction'), Config.ServerName, _U('give')))
 
-RMenu.Add('submenu', 'weapon', RageUI.CreateSubMenu(RMenu:Get('submenu', 'me'), Config.ServerName, "Armes"))
-RMenu.Add('submenu', 'weaponaction', RageUI.CreateSubMenu(RMenu:Get('submenu', 'weapon'), Config.ServerName, "Que voulez-vous faire?"))
+RMenu.Add('submenu', 'weapon', RageUI.CreateSubMenu(RMenu:Get('submenu', 'me'), Config.ServerName, _U('weapon')))
+RMenu.Add('submenu', 'weaponaction', RageUI.CreateSubMenu(RMenu:Get('submenu', 'weapon'), Config.ServerName, _U('what_do')))
 RMenu.Add('submenu', 'giveweapon', RageUI.CreateSubMenu(RMenu:Get('submenu', 'weaponaction'), Config.ServerName, "Personne proche de vous"))
 
-RMenu.Add('submenu', 'wallet', RageUI.CreateSubMenu(RMenu:Get('submenu', 'me'), Config.ServerName, "Portefeuille"))
+RMenu.Add('submenu', 'wallet', RageUI.CreateSubMenu(RMenu:Get('submenu', 'me'), Config.ServerName, _U('wallet')))
 
-RMenu.Add('submenu', 'bill', RageUI.CreateSubMenu(RMenu:Get('submenu', 'wallet'), Config.ServerName, "Facture"))
+RMenu.Add('submenu', 'bill', RageUI.CreateSubMenu(RMenu:Get('submenu', 'wallet'), Config.ServerName, _U('bill')))
 if Config.useDoubleKey then
     RMenu.Add('submenu', 'carkey', RageUI.CreateSubMenu(RMenu:Get('submenu', 'me'), Config.ServerName, "Clés"))
-    RMenu.Add('submenu', 'keyaction', RageUI.CreateSubMenu(RMenu:Get('submenu', 'carkey'), Config.ServerName, "Que voulez-vous faire?"))
+    RMenu.Add('submenu', 'keyaction', RageUI.CreateSubMenu(RMenu:Get('submenu', 'carkey'), Config.ServerName, _U('what_do')))
 end
-RMenu.Add('submenu', 'vehicle', RageUI.CreateSubMenu(RMenu:Get('main', 'menuperso'), Config.ServerName, "Gestion véhicule"))
+RMenu.Add('submenu', 'vehicle', RageUI.CreateSubMenu(RMenu:Get('main', 'menuperso'), Config.ServerName, _U('vehicle_manager')))
 
-RMenu.Add('submenu', 'vehinfo', RageUI.CreateSubMenu(RMenu:Get('submenu', 'vehicle'), Config.ServerName, "Information véhicule"))
+RMenu.Add('submenu', 'vehinfo', RageUI.CreateSubMenu(RMenu:Get('submenu', 'vehicle'), Config.ServerName, _U('info_veh')))
 
-RMenu.Add('submenu', 'society', RageUI.CreateSubMenu(RMenu:Get('main', 'menuperso'), Config.ServerName, "Gestion entreprise"))
+RMenu.Add('submenu', 'society', RageUI.CreateSubMenu(RMenu:Get('main', 'menuperso'), Config.ServerName, _U('society_manager')))
 
 if Config.doubleJob then
-    RMenu.Add('submenu', 'gang', RageUI.CreateSubMenu(RMenu:Get('main', 'menuperso'), Config.ServerName, "Gestion organisation"))
+    RMenu.Add('submenu', 'gang', RageUI.CreateSubMenu(RMenu:Get('main', 'menuperso'), Config.ServerName, _U('gang_manager')))
 end
 
-RMenu.Add('submenu', 'admin', RageUI.CreateSubMenu(RMenu:Get('main', 'menuperso'), Config.ServerName, "Administration"))
-RMenu.Add('submenu', 'admintp', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, "TP"))
-RMenu.Add('submenu', 'adminplayer', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, "Joueur"))
-RMenu.Add('submenu', 'adminitem', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, "Objet"))
-RMenu.Add('submenu', 'adminjob', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, "Job"))
-RMenu.Add('submenu', 'adminjobgrade', RageUI.CreateSubMenu(RMenu:Get('submenu', 'adminjob'), Config.ServerName, "Grade"))
+RMenu.Add('submenu', 'settings', RageUI.CreateSubMenu(RMenu:Get('main', 'menuperso'), Config.ServerName, _U('settings')))
+RMenu:Get('submenu', 'settings').EnableMouse = true
+
+RMenu.Add('submenu', 'admin', RageUI.CreateSubMenu(RMenu:Get('main', 'menuperso'), Config.ServerName, _U('admin')))
+RMenu.Add('submenu', 'admintp', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('tp')))
+RMenu.Add('submenu', 'adminplayer', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('player')))
+RMenu.Add('submenu', 'adminitem', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('item_list')))
+RMenu.Add('submenu', 'adminjob', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('job_list')))
+RMenu.Add('submenu', 'adminjobgrade', RageUI.CreateSubMenu(RMenu:Get('submenu', 'adminjob'), Config.ServerName, _U('grade_list')))
 if Config.doubleJob then
     RMenu.Add('submenu', 'admingang', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, "Gang"))
     RMenu.Add('submenu', 'adminganggrade', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admingang'), Config.ServerName, "Grade"))
 end
-RMenu.Add('submenu', 'admincar', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, "Véhicule"))
-RMenu.Add('submenu', 'adminmisc', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, "Autre"))
+RMenu.Add('submenu', 'admincar', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('vehicle')))
+RMenu.Add('submenu', 'adminmisc', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('other')))
 
 ---Key manager
 Keys.Register('F5', 'open_menuperso', 'Menu Personnel', function()
@@ -178,6 +204,16 @@ Keys.Register('F5', 'open_menuperso', 'Menu Personnel', function()
     ESX.TriggerServerCallback('PA_menuperso:getUsergroup', function(group)
         playergroup = group
     end)
+    if menuParam[1] ~= nil or menuParam[1] == '[]' then
+        for k,_ in pairs(RMenu:GetType('main')) do
+            RMenu:GetType('main')[k].Menu:SetRectangleBanner(menuParam[1].color.r, menuParam[1].color.g, menuParam[1].color.b, menuParam[1].color.a)
+            RMenu:GetType('main')[k].Menu:SetStyleSize(menuParam[1].size)
+        end
+        for k,_ in pairs(RMenu:GetType('submenu')) do
+            RMenu:GetType('submenu')[k].Menu:SetRectangleBanner(menuParam[1].color.r, menuParam[1].color.g, menuParam[1].color.b, menuParam[1].color.a)
+            RMenu:GetType('submenu')[k].Menu:SetStyleSize(menuParam[1].size)
+        end
+    end
     RageUI.Visible(RMenu:Get('main', 'menuperso'), not RageUI.Visible(RMenu:Get('main', 'menuperso')))
 end)
 
@@ -294,6 +330,7 @@ Citizen.CreateThread(function()
                     Visual.Popup(_U('notif_save'))
                 end
             })
+            RageUI.Button(_U('settings'), nil, {}, true, {}, RMenu:Get('submenu', 'settings'))
             if playergroup == 'mod' or playergroup == 'admin' or playergroup == 'superadmin' or playergroup == 'owner' then
                 RageUI.Button(_U('admin'), nil, {}, true, {}, RMenu:Get('submenu', 'admin'))
             end
@@ -1037,6 +1074,129 @@ Citizen.CreateThread(function()
                 })
             end)
         end
+
+        RageUI.IsVisible(RMenu:Get('submenu', 'settings'), function()
+            RageUI.Separator(_U('color_settings'))
+            RageUI.List(_U('red'), Menu.Settings.color.red, Menu.Settings.color.indexRed or 1, nil, {}, true, {
+                onListChange = function(index)
+                    Menu.Settings.color.indexRed = index
+                    RMenu:Get('submenu', 'settings'):SetRectangleBanner(Menu.Settings.color.indexRed-1, Menu.Settings.color.indexGreen-1, Menu.Settings.color.indexBlue-1, Menu.Settings.color.indexAlpha-1)
+                end,
+                onSelected = function()
+                    local post, red = CheckQuantity(KeyboardInput(_U('red'), '', 3))
+                    if post then
+                        if red ~= nil then
+                            Menu.Settings.color.indexRed = red + 1
+                            RMenu:Get('submenu', 'settings'):SetRectangleBanner(Menu.Settings.color.indexRed-1, Menu.Settings.color.indexGreen-1, Menu.Settings.color.indexBlue-1, Menu.Settings.color.indexAlpha-1)
+                        end
+                    end
+                end
+            })
+            RageUI.List(_U('green'), Menu.Settings.color.green, Menu.Settings.color.indexGreen or 1, nil, {}, true, {
+                onListChange = function(index)
+                    Menu.Settings.color.indexGreen = index
+                    RMenu:Get('submenu', 'settings'):SetRectangleBanner(Menu.Settings.color.indexRed-1, Menu.Settings.color.indexGreen-1, Menu.Settings.color.indexBlue-1, Menu.Settings.color.indexAlpha-1)
+                end,
+                onSelected = function()
+                    local post, green = CheckQuantity(KeyboardInput(_U('red'), '', 3))
+                    if post then
+                        if green ~= nil then
+                            Menu.Settings.color.indexGreen = green + 1
+                            RMenu:Get('submenu', 'settings'):SetRectangleBanner(Menu.Settings.color.indexRed-1, Menu.Settings.color.indexGreen-1, Menu.Settings.color.indexBlue-1, Menu.Settings.color.indexAlpha-1)
+                        end
+                    end
+                end
+            })
+            RageUI.List(_U('blue'), Menu.Settings.color.blue, Menu.Settings.color.indexBlue or 1, nil, {}, true, {
+                onListChange = function(index)
+                    Menu.Settings.color.indexBlue = index
+                    RMenu:Get('submenu', 'settings'):SetRectangleBanner(Menu.Settings.color.indexRed-1, Menu.Settings.color.indexGreen-1, Menu.Settings.color.indexBlue-1, Menu.Settings.color.indexAlpha-1)
+                end,
+                onSelected = function()
+                    local post, blue = CheckQuantity(KeyboardInput(_U('red'), '', 3))
+                    if post then
+                        if blue ~= nil then
+                            Menu.Settings.color.indexBlue = blue + 1
+                            RMenu:Get('submenu', 'settings'):SetRectangleBanner(Menu.Settings.color.indexRed-1, Menu.Settings.color.indexGreen-1, Menu.Settings.color.indexBlue-1, Menu.Settings.color.indexAlpha-1)
+                        end
+                    end
+                end
+            })
+            RageUI.List(_U('alpha'), Menu.Settings.color.alpha, Menu.Settings.color.indexAlpha or 1, nil, {}, true, {
+                onListChange = function(index)
+                    Menu.Settings.color.indexAlpha = index
+                    RMenu:Get('submenu', 'settings'):SetRectangleBanner(Menu.Settings.color.indexRed-1, Menu.Settings.color.indexGreen-1, Menu.Settings.color.indexBlue-1, Menu.Settings.color.indexAlpha-1)
+                end,
+                onSelected = function()
+                    local post, alpha = CheckQuantity(KeyboardInput(_U('red'), '', 3))
+                    if post then
+                        if alpha ~= nil then
+                            Menu.Settings.color.indexAlpha = alpha + 1
+                            RMenu:Get('submenu', 'settings'):SetRectangleBanner(Menu.Settings.color.indexRed-1, Menu.Settings.color.indexGreen-1, Menu.Settings.color.indexBlue-1, Menu.Settings.color.indexAlpha-1)
+                        end
+                    end
+                end
+            })
+            RageUI.Separator(_U('size'))
+            RageUI.List(_U('menu_size'), Menu.Settings.size, Menu.Settings.indexSize, nil, {}, true, {
+                onListChange = function(index, item)
+                    Menu.Settings.indexSize = index
+                    if item == "NativeUI" then
+                        RMenu:Get('submenu', 'settings'):SetStyleSize(0)
+                        Menu.Settings.currentSize = 0
+                    elseif item == "RageUI" then
+                        RMenu:Get('submenu', 'settings'):SetStyleSize(100)
+                        Menu.Settings.currentSize = 100
+                    end
+                end
+            })
+            RageUI.Button(_U('confirm'), nil, {}, true, {
+                onSelected = function()
+                    table.remove(menuParam, 1)
+                    table.insert(menuParam, {
+                        color = {
+                            r = Menu.Settings.color.indexRed - 1,
+                            g = Menu.Settings.color.indexGreen - 1,
+                            b = Menu.Settings.color.indexBlue - 1,
+                            a = Menu.Settings.color.indexAlpha - 1
+                        },
+                        size = Menu.Settings.currentSize
+                    })
+                    for k,_ in pairs(RMenu:GetType('main')) do
+                        RMenu:GetType('main')[k].Menu:SetRectangleBanner(Menu.Settings.color.indexRed-1, Menu.Settings.color.indexGreen-1, Menu.Settings.color.indexBlue-1, Menu.Settings.color.indexAlpha-1)
+                        RMenu:GetType('main')[k].Menu:SetStyleSize(menuParam[1].size)
+                    end
+                    for k,_ in pairs(RMenu:GetType('submenu')) do
+                        RMenu:GetType('submenu')[k].Menu:SetRectangleBanner(Menu.Settings.color.indexRed-1, Menu.Settings.color.indexGreen-1, Menu.Settings.color.indexBlue-1, Menu.Settings.color.indexAlpha-1)
+                        RMenu:GetType('submenu')[k].Menu:SetStyleSize(menuParam[1].size)
+                    end
+                    SetResourceKvp("menuParam", json.encode(menuParam))
+                end
+            })
+            RageUI.Button(_U('reset'), nil, {}, true, {
+                onSelected = function()
+                    table.remove(menuParam, 1)
+                    DeleteResourceKvp("menuParam")
+                    for k,_ in pairs(RMenu:GetType('main')) do
+                        RMenu:GetType('main')[k].Menu:SetSpriteBanner()
+                        RMenu:GetType('main')[k].Menu:SetRectangleBanner()
+                        RMenu:GetType('main')[k].Menu:SetStyleSize(0)
+                    end
+                    for k,_ in pairs(RMenu:GetType('submenu')) do
+                        RMenu:GetType('submenu')[k].Menu:SetSpriteBanner()
+                        RMenu:GetType('submenu')[k].Menu:SetStyleSize(0)
+                    end
+                end
+            })
+        end, function()
+            RageUI.PercentagePanel(Menu.Settings.sizeCustom, _U('size_percent'), "NativeUI", "RageUI", {
+                onProgressChange = function(percent)
+                    Menu.Settings.sizeCustom = percent
+                    RMenu:Get('submenu', 'settings'):SetStyleSize(percent*100)
+                    Menu.Settings.currentSize = percent * 100
+                end
+            }, 7)
+        end)
 
         RageUI.IsVisible(RMenu:Get('submenu', 'admin'), function()
             RageUI.Button(_U('tp'), nil, {}, true, {}, RMenu:Get('submenu', 'admintp'))
