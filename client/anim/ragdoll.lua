@@ -1,5 +1,5 @@
-RegisterNetEvent('PT_menuperso:ragdoll')
-AddEventHandler('PT_menuperso:ragdoll',function()
+RegisterNetEvent('Drago_menuperso:ragdoll')
+AddEventHandler('Drago_menuperso:ragdoll',function()
     local playerPed = PlayerPedId()
     local vehicle = GetVehiclePedIsIn(playerPed,false)
     if not IsPedInVehicle(playerPed, vehicle, false) then

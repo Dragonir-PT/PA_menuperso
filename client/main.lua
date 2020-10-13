@@ -192,7 +192,7 @@ RMenu.Add('submenu', 'adminmisc', RageUI.CreateSubMenu(RMenu:Get('submenu', 'adm
 ---Key manager
 Keys.Register('F5', 'open_menuperso', 'Menu Personnel', function()
     if Config.TitlePlayerName then
-        ESX.TriggerServerCallback('PA_menuperso:getName', function(name)
+        ESX.TriggerServerCallback('Drago_menuperso:getName', function(name)
             for k,_ in pairs(RMenu:GetType('main')) do
                 RMenu:GetType('main')[k].Menu:SetTitle(name)
             end
@@ -201,7 +201,7 @@ Keys.Register('F5', 'open_menuperso', 'Menu Personnel', function()
             end
         end)
     end
-    ESX.TriggerServerCallback('PA_menuperso:getUsergroup', function(group)
+    ESX.TriggerServerCallback('Drago_menuperso:getUsergroup', function(group)
         playergroup = group
     end)
     if menuParam[1] ~= nil or menuParam[1] == '[]' then
@@ -326,7 +326,7 @@ Citizen.CreateThread(function()
             end
             RageUI.Button(_U('save_pos'), nil, {}, true, {
                 onSelected = function()
-                    TriggerServerEvent('PA_menuperso:SavePos')
+                    TriggerServerEvent('Drago_menuperso:SavePos')
                     Visual.Popup(_U('notif_save'))
                 end
             })
@@ -343,7 +343,7 @@ Citizen.CreateThread(function()
             if Config.useDoubleKey then
                 RageUI.Button(_U('car_key'), nil, {}, true, {
                     onSelected = function()
-                        ESX.TriggerServerCallback('PA_menuperso:getKey', function(key)
+                        ESX.TriggerServerCallback('Drago_menuperso:getKey', function(key)
                             Menu.CarKey = key
                         end)
                     end
@@ -354,7 +354,7 @@ Citizen.CreateThread(function()
 
         RageUI.IsVisible(RMenu:Get('submenu', 'inventory'), function()
             ESX.PlayerData = ESX.GetPlayerData()
-            ESX.TriggerServerCallback('PA_menuperso:getPlayerWeight', function(weight)
+            ESX.TriggerServerCallback('Drago_menuperso:getPlayerWeight', function(weight)
                 Menu.Inventory.weight = weight/1000
             end)
             for i=1, #ESX.PlayerData.inventory, 1 do
@@ -371,7 +371,7 @@ Citizen.CreateThread(function()
         RageUI.IsVisible(RMenu:Get('submenu', 'invaction'), function()
             if Menu.Inventory.itemSelected.count == 0 then
                 RageUI.GoBack()
-                ESX.TriggerServerCallback('PA_menuperso:getPlayerWeight', function(weight)
+                ESX.TriggerServerCallback('Drago_menuperso:getPlayerWeight', function(weight)
                     Menu.Inventory.weight = weight
                 end)
             end
@@ -602,7 +602,7 @@ Citizen.CreateThread(function()
             end
             RageUI.Button(_U('bill'), nil, {}, true, {
                 onSelected = function()
-                    ESX.TriggerServerCallback('PA_menuperso:Bill_getBills', function(bills)
+                    ESX.TriggerServerCallback('Drago_menuperso:Bill_getBills', function(bills)
                         Menu.Wallet.Bill = bills
                     end)
                 end
@@ -654,7 +654,7 @@ Citizen.CreateThread(function()
                 RageUI.Button(Menu.Wallet.Bill[i].label, nil, {RightLabel = Menu.Wallet.Bill[i].amount.."$"}, true, {
                     onSelected = function()
                         ESX.TriggerServerCallback('esx_billing:payBill', function()
-                            ESX.TriggerServerCallback('PA_menuperso:Bill_getBills', function(bills)
+                            ESX.TriggerServerCallback('Drago_menuperso:Bill_getBills', function(bills)
                                 Menu.Wallet.Bill = bills
                             end)
                         end, Menu.Wallet.Bill[i].id)
@@ -966,7 +966,7 @@ Citizen.CreateThread(function()
                         if closestPlayer == -1 or closestDistance > 3.0 then
                             Visual.Popup(_U('nobody'))
                         else
-                            TriggerServerEvent('PA_menuperso:recruterplayer', GetPlayerServerId(closestPlayer), ESX.PlayerData.job.name, 0)
+                            TriggerServerEvent('Drago_menuperso:recruterplayer', GetPlayerServerId(closestPlayer), ESX.PlayerData.job.name, 0)
                         end
                     end
                 end
@@ -979,7 +979,7 @@ Citizen.CreateThread(function()
                         if closestPlayer == -1 or closestDistance > 3.0 then
                             Visual.Popup(_U('nobody'))
                         else
-                            TriggerServerEvent('PA_menuperso:virerplayer', GetPlayerServerId(closestPlayer))
+                            TriggerServerEvent('Drago_menuperso:virerplayer', GetPlayerServerId(closestPlayer))
                         end
                     end
                 end
@@ -992,7 +992,7 @@ Citizen.CreateThread(function()
                         if closestPlayer == -1 or closestDistance > 3.0 then
                             Visual.Popup(_U('nobody'))
                         else
-                            TriggerServerEvent('PA_menuperso:promouvoirplayer', GetPlayerServerId(closestPlayer))
+                            TriggerServerEvent('Drago_menuperso:promouvoirplayer', GetPlayerServerId(closestPlayer))
                         end
                     end
                 end
@@ -1005,7 +1005,7 @@ Citizen.CreateThread(function()
                         if closestPlayer == -1 or closestDistance > 3.0 then
                             Visual.Popup(_U('nobody'))
                         else
-                            TriggerServerEvent('PA_menuperso:destituerplayer', GetPlayerServerId(closestPlayer))
+                            TriggerServerEvent('Drago_menuperso:destituerplayer', GetPlayerServerId(closestPlayer))
                         end
                     else
                         Visual.Popup("Vous n'avez pas les ~r~droits~w~")
@@ -1028,7 +1028,7 @@ Citizen.CreateThread(function()
                             if closestPlayer == -1 or closestDistance > 3.0 then
                                 Visual.Popup(_U('nobody'))
                             else
-                                TriggerServerEvent('PA_menuperso:recruterplayer2', GetPlayerServerId(closestPlayer), ESX.PlayerData.job2.name, 0)
+                                TriggerServerEvent('Drago_menuperso:recruterplayer2', GetPlayerServerId(closestPlayer), ESX.PlayerData.job2.name, 0)
                             end
                         end
                     end
@@ -1041,7 +1041,7 @@ Citizen.CreateThread(function()
                             if closestPlayer == -1 or closestDistance > 3.0 then
                                 Visual.Popup(_U('nobody'))
                             else
-                                TriggerServerEvent('PA_menuperso:virerplayer2', GetPlayerServerId(closestPlayer))
+                                TriggerServerEvent('Drago_menuperso:virerplayer2', GetPlayerServerId(closestPlayer))
                             end
                         end
                     end
@@ -1054,7 +1054,7 @@ Citizen.CreateThread(function()
                             if closestPlayer == -1 or closestDistance > 3.0 then
                                 Visual.Popup(_U('nobody'))
                             else
-                                TriggerServerEvent('PA_menuperso:promouvoirplayer2', GetPlayerServerId(closestPlayer))
+                                TriggerServerEvent('Drago_menuperso:promouvoirplayer2', GetPlayerServerId(closestPlayer))
                             end
                         end
                     end
@@ -1067,7 +1067,7 @@ Citizen.CreateThread(function()
                             if closestPlayer == -1 or closestDistance > 3.0 then
                                 Visual.Popup(_U('nobody'))
                             else
-                                TriggerServerEvent('PA_menuperso:destituerplayer2', GetPlayerServerId(closestPlayer))
+                                TriggerServerEvent('Drago_menuperso:destituerplayer2', GetPlayerServerId(closestPlayer))
                             end
                         end
                     end
@@ -1294,7 +1294,7 @@ Citizen.CreateThread(function()
                         local post, quantity = CheckQuantity(KeyboardInput(_U('quantity'), '', 7))
                         if post then
                             if quantity ~= nil and quantity > 0 then
-                                ESX.TriggerServerCallback('PA_menuperso:giveItem', function(give)
+                                ESX.TriggerServerCallback('Drago_menuperso:giveItem', function(give)
                                     if give and name ~= nil then
                                         Visual.Popup(_U('give_item', quantity, label))
                                     end
@@ -1310,13 +1310,13 @@ Citizen.CreateThread(function()
             end
         end)
         RageUI.IsVisible(RMenu:Get('submenu', 'adminjob'), function()
-            ESX.TriggerServerCallback('PA_menuperso:getJob', function(joblist)
+            ESX.TriggerServerCallback('Drago_menuperso:getJob', function(joblist)
                 jobList = joblist
             end)
             for i=1, #jobList, 1 do
                 RageUI.Button(jobList[i].label, jobList[i].name, {}, true, {
                     onSelected = function()
-                        ESX.TriggerServerCallback('PA_menuperso:getgrade', function(gradelist)
+                        ESX.TriggerServerCallback('Drago_menuperso:getgrade', function(gradelist)
                             grade = gradelist
                             selectedJob = jobList[i]
                         end, jobList[i].name)
@@ -1328,7 +1328,7 @@ Citizen.CreateThread(function()
             for i=1, #grade, 1 do
                 RageUI.Button(grade[i].label, _U('grade_list_desc', grade[i].name, grade[i].grade), {}, true, {
                     onSelected = function()
-                        TriggerServerEvent('PA_menuperso:setjob', selectedJob.name, grade[i].grade)
+                        TriggerServerEvent('Drago_menuperso:setjob', selectedJob.name, grade[i].grade)
                         Visual.Popup(_U('new_grad_notif', grade[i].label, selectedJob.label))
                     end
                 })
@@ -1336,13 +1336,13 @@ Citizen.CreateThread(function()
         end)
         if Config.doubleJob then
             RageUI.IsVisible(RMenu:Get('submenu', 'admingang'), function()
-                ESX.TriggerServerCallback('PA_menuperso:getJob', function(joblist)
+                ESX.TriggerServerCallback('Drago_menuperso:getJob', function(joblist)
                     jobList = joblist
                 end)
                 for i=1, #jobList, 1 do
                     RageUI.Button(jobList[i].label, jobList[i].name, {}, true, {
                         onSelected = function()
-                            ESX.TriggerServerCallback('PA_menuperso:getgrade', function(gradelist)
+                            ESX.TriggerServerCallback('Drago_menuperso:getgrade', function(gradelist)
                                 grade = gradelist
                                 selectedJob = jobList[i]
                             end, jobList[i].name)
@@ -1354,7 +1354,7 @@ Citizen.CreateThread(function()
                 for i=1, #grade, 1 do
                     RageUI.Button(grade[i].label, _U('grade_list_desc', grade[i].name, grade[i].grade), {}, true, {
                         onSelected = function()
-                            TriggerServerEvent('PA_menuperso:setjob2', selectedJob.name, grade[i].grade)
+                            TriggerServerEvent('Drago_menuperso:setjob2', selectedJob.name, grade[i].grade)
                             Visual.Popup(_U('new_grad_notif', grade[i].label, selectedJob.label))
                         end
                     })
@@ -1509,7 +1509,7 @@ function setHUD(value)
         SendNUIMessage({openCinema = false})
         DisplayRadar(true)
         TriggerEvent('ui:display', true)
-        TriggerEvent('PA_menuperso:hideRadar', false)
+        TriggerEvent('Drago_menuperso:hideRadar', false)
     elseif value == 'hideHUD' then
         SendNUIMessage({openCinema = false})
         TriggerEvent('esx_status:setDisplay', 0.0)
@@ -1519,7 +1519,7 @@ function setHUD(value)
         SendNUIMessage({openCinema = true})
         DisplayRadar(false)
         TriggerEvent('ui:display', false)
-        TriggerEvent('PA_menuperso:hideRadar', true)
+        TriggerEvent('Drago_menuperso:hideRadar', true)
     end
 
 end

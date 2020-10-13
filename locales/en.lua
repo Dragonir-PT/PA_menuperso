@@ -24,13 +24,14 @@ Locales['en'] = {
 
     --weapon
     ['weapon'] = "weapon",
+    ['near_you'] = "Person near you",
 
     --wallet
     ['wallet'] = "wallet",
     ['job_label'] = "job : %s - %s",
     ['gang_label'] = "Organisation : %s - %s",
     ['money_label'] = "%s : ~g~%s$",
-    ['black_label'] = "%s : ~g~%s$",
+    ['black_label'] = "%s : ~r~%s$",
     ['bill'] = "bill",
     ['paper'] = "papers",
     ['show_idcard'] = "show id card",
@@ -39,6 +40,8 @@ Locales['en'] = {
     ['look_licence'] = "look driver license",
     ['show_weapon'] = "show weapon license",
     ['look_weapon'] = "look weapon license",
+    ['idcard'] = "Identity card",
+    ['license'] = "License",
 
     --car key
     ['car_key'] = "key",

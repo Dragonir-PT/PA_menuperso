@@ -24,13 +24,14 @@ Locales['fr'] = {
 
     --weapon
     ['weapon'] = "Armes",
+    ['near_you'] = "Personne proche de vous",
 
     --wallet
     ['wallet'] = "Portefeuille",
     ['job_label'] = "Métier : %s - %s",
     ['gang_label'] = "Organisation : %s - %s",
     ['money_label'] = "%s : ~g~%s$",
-    ['black_label'] = "%s : ~g~%s$",
+    ['black_label'] = "%s : ~r~%s$",
     ['bill'] = "Factures",
     ['paper'] = "Papiers",
     ['show_idcard'] = "Montrer Carte d'identité",
@@ -39,6 +40,21 @@ Locales['fr'] = {
     ['look_licence'] = "Voir permis de conduire",
     ['show_weapon'] = "Montrer PPA",
     ['look_weapon'] = "Voir PPA",
+    ['idcard'] = "Carte d'identité",
+    ['name'] = "Nom",
+    ['firstname'] = "Prénom",
+    ['sex'] = "Sexe",
+    ['man'] = "Homme",
+    ['woman'] = "Femme",
+    ['height'] = "Taille (en cm)",
+
+    ['license'] = "Permis",
+    ['dmv'] = "Code de la route",
+    ['drive'] = "Permis voiture",
+    ['drive_bike'] = "Permis moto",
+    ['drive_truck'] = "Permis camion",
+    ['boat'] = "Permis nautique",
+    ['weapon'] = "Permis de port d'armes",
 
     --car key
     ['car_key'] = "Clés",
@@ -91,8 +107,8 @@ Locales['fr'] = {
     ['industrial'] = "Industrielle",
     ['util'] = "Utilistaire",
     ['van'] = "Van",
-    ['bike'] = "Vélo",
-    ['boat'] = "Bâteau",
+    ['bicycle'] = "Vélo",
+    ['boatc'] = "Bateau",
     ['heli'] = "Hélicoptère",
     ['plane'] = "Avion",
     ['service'] = "Service",

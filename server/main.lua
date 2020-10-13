@@ -10,24 +10,41 @@ ESX = nil
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
 ---Player data
-ESX.RegisterServerCallback('PA_menuperso:getName', function(source, cb)
+ESX.RegisterServerCallback('Drago_menuperso:getName', function(source, cb)
     local xPlayer = ESX.GetPlayerFromId(source)
-    local result = MySQL.Sync.fetchAll('SELECT firstname, lastname FROM users WHERE identifier = @identifier', {
+    local result = MySQL.Sync.fetchAll('SELECT * FROM users WHERE identifier = @identifier', {
         ['@identifier'] = xPlayer.identifier
-    })
-    local firstname = result[1].firstname
-    local lastname = result[1].lastname
-    local fullName = firstname..' '..lastname
-
-    cb(fullName)
+    }, function() end)
+    local playerInfo = {
+        firstname = result[1].firstname,
+        lastname = result[1].lastname,
+        fullname = result[1].firstname..' '..result[1].lastname,
+        dob = result[1].dateofbirth,
+        height = result[1].height,
+        sex = result[1].sex
+    }
+    cb(playerInfo)
 end)
 
-ESX.RegisterServerCallback('PA_menuperso:getPlayerWeight', function(source, cb)
+ESX.RegisterServerCallback('Drago_menuperso:getLicense', function(source, cb)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local playerLicense = {}
+    MySQL.Async.fetchAll('SELECT type FROM user_licenses WHERE owner = @identifier', {
+        ['@identifier'] = xPlayer.identifier
+    }, function(result)
+        for i=1, #result do
+            table.insert(playerLicense, result[i])
+        end
+        cb(playerLicense)
+    end)
+end)
+
+ESX.RegisterServerCallback('Drago_menuperso:getPlayerWeight', function(source, cb)
     local xPlayer = ESX.GetPlayerFromId(source)
     cb(xPlayer.getWeight())
 end)
 
-ESX.RegisterServerCallback('PA_menuperso:Bill_getBills', function(source, cb)
+ESX.RegisterServerCallback('Drago_menuperso:Bill_getBills', function(source, cb)
     local xPlayer = ESX.GetPlayerFromId(source)
     local bills = {}
 
@@ -45,7 +62,7 @@ ESX.RegisterServerCallback('PA_menuperso:Bill_getBills', function(source, cb)
     end)
 end)
 
-ESX.RegisterServerCallback('PA_menuperso:getKey', function(source, cb)
+ESX.RegisterServerCallback('Drago_menuperso:getKey', function(source, cb)
     local xPlayer = ESX.GetPlayerFromId(source)
     local key = {}
 
@@ -64,8 +81,8 @@ ESX.RegisterServerCallback('PA_menuperso:getKey', function(source, cb)
 end)
 
 ---Boss
-RegisterServerEvent('PA_menuperso:promouvoirplayer')
-AddEventHandler('PA_menuperso:promouvoirplayer', function(target)
+RegisterServerEvent('Drago_menuperso:promouvoirplayer')
+AddEventHandler('Drago_menuperso:promouvoirplayer', function(target)
 
     local _source = source
 
@@ -95,8 +112,8 @@ AddEventHandler('PA_menuperso:promouvoirplayer', function(target)
 
 end)
 
-RegisterServerEvent('PA_menuperso:destituerplayer')
-AddEventHandler('PA_menuperso:destituerplayer', function(target)
+RegisterServerEvent('Drago_menuperso:destituerplayer')
+AddEventHandler('Drago_menuperso:destituerplayer', function(target)
 
     local _source = source
 
@@ -125,8 +142,8 @@ AddEventHandler('PA_menuperso:destituerplayer', function(target)
 
 end)
 
-RegisterServerEvent('PA_menuperso:recruterplayer')
-AddEventHandler('PA_menuperso:recruterplayer', function(target, job, grade)
+RegisterServerEvent('Drago_menuperso:recruterplayer')
+AddEventHandler('Drago_menuperso:recruterplayer', function(target, job, grade)
 
     local _source = source
 
@@ -140,8 +157,8 @@ AddEventHandler('PA_menuperso:recruterplayer', function(target, job, grade)
 
 end)
 
-RegisterServerEvent('PA_menuperso:virerplayer')
-AddEventHandler('PA_menuperso:virerplayer', function(target)
+RegisterServerEvent('Drago_menuperso:virerplayer')
+AddEventHandler('Drago_menuperso:virerplayer', function(target)
 
     local _source = source
 
@@ -164,8 +181,8 @@ AddEventHandler('PA_menuperso:virerplayer', function(target)
 end)
 
 ---Boss2
-RegisterServerEvent('PA_menuperso:promouvoirplayer2')
-AddEventHandler('PA_menuperso:promouvoirplayer2', function(target)
+RegisterServerEvent('Drago_menuperso:promouvoirplayer2')
+AddEventHandler('Drago_menuperso:promouvoirplayer2', function(target)
 
     local _source = source
 
@@ -195,8 +212,8 @@ AddEventHandler('PA_menuperso:promouvoirplayer2', function(target)
 
 end)
 
-RegisterServerEvent('PA_menuperso:destituerplayer2')
-AddEventHandler('PA_menuperso:destituerplayer2', function(target)
+RegisterServerEvent('Drago_menuperso:destituerplayer2')
+AddEventHandler('Drago_menuperso:destituerplayer2', function(target)
 
     local _source = source
 
@@ -225,8 +242,8 @@ AddEventHandler('PA_menuperso:destituerplayer2', function(target)
 
 end)
 
-RegisterServerEvent('PA_menuperso:recruterplayer2')
-AddEventHandler('PA_menuperso:recruterplayer2', function(target, job, grade)
+RegisterServerEvent('Drago_menuperso:recruterplayer2')
+AddEventHandler('Drago_menuperso:recruterplayer2', function(target, job, grade)
 
     local _source = source
 
@@ -240,8 +257,8 @@ AddEventHandler('PA_menuperso:recruterplayer2', function(target, job, grade)
 
 end)
 
-RegisterServerEvent('PA_menuperso:virerplayer2')
-AddEventHandler('PA_menuperso:virerplayer2', function(target)
+RegisterServerEvent('Drago_menuperso:virerplayer2')
+AddEventHandler('Drago_menuperso:virerplayer2', function(target)
 
     local _source = source
 
@@ -264,7 +281,7 @@ AddEventHandler('PA_menuperso:virerplayer2', function(target)
 end)
 
 ---Admin
-ESX.RegisterServerCallback('PA_menuperso:getUsergroup', function(source, cb)
+ESX.RegisterServerCallback('Drago_menuperso:getUsergroup', function(source, cb)
     local xPlayer = ESX.GetPlayerFromId(source)
     local group = xPlayer.getGroup()
     cb(group)
@@ -311,14 +328,14 @@ AddEventHandler("AdminMenu:giveDirtyMoney", function(money)
 
 end)
 
-ESX.RegisterServerCallback('PA_menuperso:giveItem', function(source, cb, item, qty)
+ESX.RegisterServerCallback('Drago_menuperso:giveItem', function(source, cb, item, qty)
     local xPlayer = ESX.GetPlayerFromId(source)
     print(item, qty)
     xPlayer.addInventoryItem(item, qty)
     cb(true)
 end)
 
-ESX.RegisterServerCallback('PA_menuperso:getJob', function(_, cb)
+ESX.RegisterServerCallback('Drago_menuperso:getJob', function(_, cb)
     local job = {}
     MySQL.Async.fetchAll('SELECT * FROM jobs', {}, function(result)
         for i=1, #result, 1 do
@@ -331,7 +348,7 @@ ESX.RegisterServerCallback('PA_menuperso:getJob', function(_, cb)
     end)
 end)
 
-ESX.RegisterServerCallback('PA_menuperso:getgrade', function(_, cb, job)
+ESX.RegisterServerCallback('Drago_menuperso:getgrade', function(_, cb, job)
     local grade = {}
     MySQL.Async.fetchAll('SELECT * FROM job_grades WHERE job_name = @job_name', {
         ['@job_name'] = job
@@ -347,15 +364,15 @@ ESX.RegisterServerCallback('PA_menuperso:getgrade', function(_, cb, job)
     end)
 end)
 
-RegisterServerEvent('PA_menuperso:setjob')
-AddEventHandler('PA_menuperso:setjob', function(job, grade)
+RegisterServerEvent('Drago_menuperso:setjob')
+AddEventHandler('Drago_menuperso:setjob', function(job, grade)
     local xPlayer = ESX.GetPlayerFromId(source)
 
     xPlayer.setJob(job, grade)
 end)
 
-RegisterServerEvent('PA_menuperso:setjob2')
-AddEventHandler('PA_menuperso:setjob2', function(job, grade)
+RegisterServerEvent('Drago_menuperso:setjob2')
+AddEventHandler('Drago_menuperso:setjob2', function(job, grade)
     local xPlayer = ESX.GetPlayerFromId(source)
 
     xPlayer.setJob2(job, grade)
@@ -376,8 +393,8 @@ AddEventHandler('PA_VehShop:setVehicleOwned', function(vehicleProps)
 end)
 ---Save position
 
-RegisterServerEvent("PA_menuperso:SavePos")
-AddEventHandler("PA_menuperso:SavePos", function()
+RegisterServerEvent("Drago_menuperso:SavePos")
+AddEventHandler("Drago_menuperso:SavePos", function()
     local _source = source
     local xPlayer = ESX.GetPlayerFromId(_source)
 

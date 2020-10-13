@@ -1,8 +1,8 @@
-# PA_menuperso
+# Drago_menuperso
 
 ## Description
 
-PA_menuperso is a script for player inventory, managed player weapon, and other things.
+Drago_menuperso is a script for player inventory, managed player weapon, and other things.
 It have an admin menu with a lot of option like an item list for give it to you, a job list with grade list for change your job.
 It have the double job too
 

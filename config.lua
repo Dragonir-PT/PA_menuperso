@@ -12,7 +12,7 @@ local Keys = {
 
 Config = {}
 
-Config.TitlePlayerName = false --make the player name as title for all the menu
+Config.TitlePlayerName = true --make the player name as title for all the menu
 
 Config.ServerName = "Project Alpha" --if TitlePlayerName was false, the title was define from this
 
@@ -38,10 +38,6 @@ Config.GPS = {
 Config.handsUP = {
     clavier = Keys["~"],
 }
--- Croiser les bras
-Config.crossHands = {
-    clavier = Keys["H"],
-}
 -- Pointer du doight
 Config.pointing = {
     clavier = Keys["B"],
@@ -49,8 +45,4 @@ Config.pointing = {
 -- S'acroupir
 Config.crouch = {
     clavier = Keys["LEFTCTRL"],
-}
--- Ragdoll
-Config.Ragdoll = {
-    clavier = Keys["G"],
 }
