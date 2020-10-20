@@ -9,6 +9,16 @@ ESX = nil
 
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
+function getMaximumGrade(jobname)
+    local result = MySQL.Sync.fetchAll("SELECT * FROM job_grades WHERE job_name=@jobname  ORDER BY `grade` DESC ;", {
+        ['@jobname'] = jobname
+    })
+    if result[1] ~= nil then
+        return result[1].grade
+    end
+    return nil
+end
+
 ---Player data
 ESX.RegisterServerCallback('Drago_menuperso:getName', function(source, cb)
     local xPlayer = ESX.GetPlayerFromId(source)
@@ -330,7 +340,7 @@ end)
 
 ESX.RegisterServerCallback('Drago_menuperso:giveItem', function(source, cb, item, qty)
     local xPlayer = ESX.GetPlayerFromId(source)
-    print(item, qty)
+    print(source)
     xPlayer.addInventoryItem(item, qty)
     cb(true)
 end)
@@ -391,8 +401,48 @@ AddEventHandler('PA_VehShop:setVehicleOwned', function(vehicleProps)
         TriggerClientEvent('esx:showNotification', _source, "le véhicule avec la plaque ~y~"..vehicleProps.plate.."~s~ est désormais à ~b~vous~s~")
     end)
 end)
----Save position
 
+RegisterServerEvent('Drago_menuperso:sendMessage')
+AddEventHandler('Drago_menuperso:sendMessage', function(player, message)
+    TriggerClientEvent('RageUI:Radar', player, "Admin", "Message", message, 'CHAR_SOCIAL_CLUB', 2)
+end)
+
+RegisterServerEvent('Drago_menuperso:getId')
+AddEventHandler('Drago_menuperso:getId', function(id)
+    for _,v in ipairs(GetPlayerIdentifiers(id)) do
+        TriggerClientEvent('RageUI:Popup', source, '~y~'..GetPlayerName(id) ..'~s~ '..v)
+    end
+end)
+
+RegisterServerEvent('Drago_menuperso:heal')
+AddEventHandler('Drago_menuperso:heal', function(id)
+    TriggerClientEvent('esx_basicneeds:healPlayer', id)
+end)
+
+RegisterServerEvent('Drago_menuperso:Revive')
+AddEventHandler('Drago_menuperso:Revive', function(playerid)
+    local xTarget = ESX.GetPlayerFromId(playerid)
+    if xTarget then
+        xTarget.triggerEvent('esx_ambulancejob:revive')
+    end
+end)
+
+RegisterServerEvent('Drago_menuperso:kill')
+AddEventHandler('Drago_menuperso:kill', function(id)
+    TriggerClientEvent('Drago_menuperso:kill', id)
+end)
+
+RegisterServerEvent('Drago_menuperso:summon')
+AddEventHandler('Drago_menuperso:summon', function(playerId, coords)
+    TriggerClientEvent('Drago_menuperso:summon', playerId, coords)
+end)
+
+RegisterServerEvent('Drago_menuperso:kick')
+AddEventHandler('Drago_menuperso:kick', function(playerId, reason)
+   DropPlayer(playerId, reason)
+end)
+
+---Save position
 RegisterServerEvent("Drago_menuperso:SavePos")
 AddEventHandler("Drago_menuperso:SavePos", function()
     local _source = source

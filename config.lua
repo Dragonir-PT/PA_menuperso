@@ -16,9 +16,20 @@ Config.TitlePlayerName = true --make the player name as title for all the menu
 
 Config.ServerName = "Project Alpha" --if TitlePlayerName was false, the title was define from this
 
-Config.doubleJob = false
+Config.doubleJob = true
 Config.idCard = false
 Config.useDoubleKey = false
+
+Config.Shortcut = {
+    job = false,
+    animal = false, --for eden_animal
+    mobile = false, --for GCPhone
+    radio = false, --for rp-radio mumble
+    lockCar = false, --for esx_vehiclelock
+    trunk = false, --for Drago_VehChest
+    voiceVolum = false, --for mumble-voip
+    dpclothing = false --for dpclothing
+}
 
 Config.Locale = 'fr'
 

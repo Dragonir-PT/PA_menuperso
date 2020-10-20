@@ -1,4 +1,20 @@
 Locales['fr'] = {
+    --key settings
+    ['personal_menu'] = "Menu Personnel",
+    ['job_menu'] = "Menu métier",
+    ['animal_menu'] = "Menu animal",
+    ['open_phone'] = "Téléphone",
+    ['open_radio'] = "Radio",
+    ['open_car'] = "Ouvrir/fermer véhicule",
+    ['open_trunk'] = "Coffre véhicule",
+    ['change_voice'] = "Varier le volume de la voix",
+    ['manage_clothe'] = "Gestion tenue",
+    ['handsup'] = "Lever les mains",
+    ['ragdoll'] = "Ragdoll",
+    ['cancel_anim'] = "Arrêter animation",
+
+    ['no_settings'] = "Aucun paramètre trouver",
+
     ['me'] = "Me concernant",
 
     --inventory
@@ -8,22 +24,23 @@ Locales['fr'] = {
 
     ['what_do'] = "Que voulez vous faire?",
     ['use'] = "Utiliser",
+    ['not_usable'] = "%s n'est pas utilisable",
     ['give'] = "Donner",
     ['give_label'] = "%s (%s)",
     ['amount'] = "Montant",
-    ['give_car'] = "Vous ne pouvez pas donner ~y~%s~s~ dans une voiture",
+    ['give_car'] = "Vous ne pouvez pas donner ~y~%s~s~ dans un véhicule",
     ['cant_give'] = "Vous ne pouvez pas donner cette objet",
     ['nobody'] = "Personne à proximité",
     ['drop'] = "Jeter",
-    ['drop_car'] = "%s ne peux pas être jeter depuis une voiture",
+    ['drop_car'] = "%s ne peux pas être jeter depuis un véhicule",
     ['cant_drop'] = "%s ne peux pas être jeter",
 
     ['quantity'] = "Quantité",
-    ['invalid_quantity'] = "Montant invalide",
+    ['invalid_quantity'] = "Quantité invalide",
     ['invalid_entry'] = "Entrée invalide",
 
     --weapon
-    ['weapon'] = "Armes",
+    ['invweapon'] = "Armes",
     ['near_you'] = "Personne proche de vous",
 
     --wallet
@@ -40,6 +57,7 @@ Locales['fr'] = {
     ['look_licence'] = "Voir permis de conduire",
     ['show_weapon'] = "Montrer PPA",
     ['look_weapon'] = "Voir PPA",
+
     ['idcard'] = "Carte d'identité",
     ['name'] = "Nom",
     ['firstname'] = "Prénom",
@@ -134,7 +152,7 @@ Locales['fr'] = {
     ['fire'] = "Licensier",
     ['promote'] = "Promouvoir",
     ['retrograde'] = "Rétrograder",
-
+    ['missing_perm'] = "Vous n'avez pas les ~r~droits~w~",
     --gang
     ['gang_manager'] = "Gestion organisation",
     ['gang_list'] = "Gang",
@@ -158,7 +176,36 @@ Locales['fr'] = {
 
     --admin
     ['admin'] = "Administration",
+    ['online_player'] = "Online player",
+    ['send_message'] = "Envoyer un message",
+    ['message_entry'] = "Message admin (99 caractères max)",
+    ['message_error'] = "Vous ne pouvez pas envoyez de message vide",
+    ['tp_on_player'] = "Se tp sur le joueur",
+    ['cant_tp'] = "Vous ne pouvez pas vous tp sur vous même",
+    ['tp_success'] = "Vous vous êtes tp sur ~y~%s",
+    ['tp_in_player_car'] = "Se tp dans le véhicule du joueur",
+    ['summon_player'] = "Tp le joueur sur moi",
+    ['cant_summon'] = "Vous ne pouvez pas vous tp vous même",
+    ['summon_success'] = "Vous avez tp ~y~%s~s~ sur vous",
+    ['spectate'] = "Regarder le joueur",
+    ['cant_spectate'] = "Vous ne pouvez pas vous regarder vous même",
+    ['stop_spectate'] = "Vous avez arrêter de regarder le joueur",
+    ['spectate'] = "Vous regardez ~y~%s",
+    ['spectate_desc'] = "Si mumble-voip ou tokovoip est présent, vous ne pourrez ni parler ni entendre la personne",
+    ['toggle_gps'] = "Activer le GPS",
+    ['toggle_gps_off'] = "GPS désactivé",
+    ['show_id'] = "Afficher les IDs",
+    ['heal_player'] = "Soigner le joueur",
+    ['revive_player'] = "Réanimer le joueur",
+    ['kill_player'] = "~r~Tuer le joueur",
+    ['kick_player'] = "~r~Expulser le joueur",
+    ['cant_kick'] = "Vous ne pouvez pas vous kick",
+    ['kick'] = "Vous avez kick ~s~%s",
+    ['kick_reason'] = "Raison",
+    ['kick_reson_default'] = "Kick par un admin",
+    ['kick_error'] = "Raison manquante",
 
+    ['online_player_action'] = "Online player action",
     ['tp'] = "TP",
     ['summon'] = "TP sur sois",
     ['marker'] = "TP sur marqueur",
@@ -168,7 +215,7 @@ Locales['fr'] = {
 
     ['player'] = "Joueur",
     ['noclip'] = "No clip",
-    ['god'] = "God mode",
+    ['god'] = "Mode invincible",
     ['ghost'] = "Mode fantôme",
 
     ['item_list'] = "Objet",
