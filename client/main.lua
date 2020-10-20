@@ -1314,7 +1314,7 @@ Citizen.CreateThread(function()
                             DoScreenFadeIn(500)
                             Menu.admin.spectatingPlayer = Menu.admin.selectedPlayer
                             Menu.admin.spectate = true
-                            Visual.Popup(_U('spectate', GetPlayerName(Menu.admin.selectedPlayer)))
+                            Visual.Popup(_U('spectating', GetPlayerName(Menu.admin.selectedPlayer)))
                         else
                             DoScreenFadeOut(500)
                             while IsScreenFadedOut() do
@@ -1336,7 +1336,7 @@ Citizen.CreateThread(function()
                         DoScreenFadeIn(500)
                         Menu.admin.spectatingPlayer = Menu.admin.selectedPlayer
                         Menu.admin.spectate = true
-                        Visual.Popup(_U('spectate', GetPlayerName(Menu.admin.selectedPlayer)))
+                        Visual.Popup(_U('spectating', GetPlayerName(Menu.admin.selectedPlayer)))
                     end
                 end
             })
