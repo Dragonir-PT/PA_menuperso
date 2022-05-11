@@ -14,33 +14,36 @@ Config = {}
 
 Config.TitlePlayerName = true --make the player name as title for all the menu
 
-Config.ServerName = "Project Alpha" --if TitlePlayerName was false, the title was define from this
+Config.ServerName = "DeepCity" --if TitlePlayerName was false, the title was define from this
 
 Config.doubleJob = true
-Config.idCard = false
-Config.useDoubleKey = false
+Config.idCard = true
+Config.useDoubleKey = true
 
 Config.Shortcut = {
-    job = false,
-    animal = false, --for eden_animal
-    mobile = false, --for GCPhone
-    radio = false, --for rp-radio mumble
-    lockCar = false, --for esx_vehiclelock
-    trunk = false, --for Drago_VehChest
-    voiceVolum = false, --for mumble-voip
-    dpclothing = false --for dpclothing
+    job = true,
+    animal = true, --for eden_animal
+    mobile = true, --for GCPhone
+    radio = true, --for rp-radio mumble
+    lockCar = true, --for esx_vehiclelock
+    trunk = true, --for Drago_VehChest
+    voiceVolume = true, --for mumble-voip
+    dpclothing = true --for dpclothing
 }
 
 Config.Locale = 'fr'
 
 Config.GPS = {
     {label = 'Aucun', coords = nil},
-    {label = 'LSPD', coords = vector2(-1080.7, -798.28)},
-    {label = 'Garage Central', coords = vector2(215.06, -791.56)},
-    {label = 'Hôpital', coords = vector2(307.15, -1433.79)},
-    {label = 'Concess/Mécano', coords = vector2(-45.64, -1679.85)},
-    {label = 'Pôle emplois', coords = vector2(-260.05, -973.12)},
-    {label = 'Auto école', coords = vector2(238.89, -1381.74)},
+    {label = 'LSPD', coords = vector2(-1110.31,-823.0)},
+    {label = 'Garage Central', coords = vector2(254.49,-760.41)},
+    {label = 'Hôpital', coords = vector2(308.66,-587.65)},
+    {label = 'Benny\'s', coords = vector2(-216.07,-1318.92)},
+    {label = 'Mécano', coords = vector2(-339.86,-157.29)},
+    {label = 'Concess Auto', coords = vector2(-41.64,-1092.31)},
+    {label = 'Concess Moto', coords = vector2(34.04,6490.88)},
+    {label = 'Pôle emplois', coords = vector2(-265.0, -963.6)},
+    {label = 'Auto école', coords = vector2(239.471,-1380.960)},
     {label = 'Sandy Shore', coords = vector2(1799.88, 3680.99)},
     {label = 'Paleto Bay', coords = vector2(-105.1, 6304.76)},
 }

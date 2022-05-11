@@ -11,6 +11,7 @@ Locales['en'] = {
     ['manage_clothe'] = "Manage clothe",
     ['handsup'] = "Hands up",
     ['ragdoll'] = "Ragdoll",
+    ['crouch'] = "Crouch",
     ['cancel_anim'] = "Stop animation",
 
     ['no_settings'] = "No settings found",

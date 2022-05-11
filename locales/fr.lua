@@ -11,6 +11,7 @@ Locales['fr'] = {
     ['manage_clothe'] = "Gestion tenue",
     ['handsup'] = "Lever les mains",
     ['ragdoll'] = "Ragdoll",
+    ['crouch'] = "S'accroupir",
     ['cancel_anim'] = "Arrêter animation",
 
     ['no_settings'] = "Aucun paramètre trouver",
@@ -46,9 +47,13 @@ Locales['fr'] = {
     --wallet
     ['wallet'] = "Portefeuille",
     ['job_label'] = "Métier : %s - %s",
+    ['job_label2'] = "Métier secondaire : %s - %s",
     ['gang_label'] = "Organisation : %s - %s",
-    ['money_label'] = "%s : ~g~%s$",
+    ['money_label'] = "%s : <FONT color='#32AF01'>%s$",
     ['black_label'] = "%s : ~r~%s$",
+    ['cards'] = "Mes cartes",
+    ['sim'] = "Mes SIM",
+    ['rename'] = "Renommer",
     ['bill'] = "Factures",
     ['paper'] = "Papiers",
     ['show_idcard'] = "Montrer Carte d'identité",
@@ -93,14 +98,14 @@ Locales['fr'] = {
     --vehicle
     ['vehicle_manager'] = "Gestion véhicule",
     ['info_veh'] = "Information véhicule",
-    ['engine_on_off'] = "~g~Allumer~s~/~r~Éteindre~s~ le moteur",
+    ['engine_on_off'] = "<FONT color='#32AF01'>Allumer~s~/~r~Éteindre~s~ le moteur",
     ['inside_veh'] = "Vous devez être dans un véhicule",
-    ['open_door'] = "~g~Ouvrir~s~/~r~Fermer~s~ la porte",
-    ['open_window'] = "~g~Ouvrir~s~/~r~Fermer~s~ la fenêtre",
-    ['open_hood'] = "~g~Ouvrir~s~/~r~Fermer~s~ le capot",
-    ['open_trunk'] = "~g~Ouvrir~s~/~r~Fermer~s~ le coffre",
+    ['open_door'] = "<FONT color='#32AF01'>Ouvrir~s~/~r~Fermer~s~ la porte",
+    ['open_window'] = "<FONT color='#32AF01'>Ouvrir~s~/~r~Fermer~s~ la fenêtre",
+    ['open_hood'] = "<FONT color='#32AF01'>Ouvrir~s~/~r~Fermer~s~ le capot",
+    ['open_trunk'] = "<FONT color='#32AF01'>Ouvrir~s~/~r~Fermer~s~ le coffre",
     --state
-    ['perfect'] = "~g~Parfait",
+    ['perfect'] = "<FONT color='#32AF01'>Parfait",
     ['danger'] = "~y~Danger",
     ['critical'] = "~r~Critique",
     ['dead'] = "~u~HS",
@@ -149,7 +154,7 @@ Locales['fr'] = {
     ['society_manager'] = "Gestion entreprise",
     ['society_bank'] = "Compte entreprise",
     ['recruit'] = "Recruter",
-    ['fire'] = "Licensier",
+    ['fire'] = "Licencier",
     ['promote'] = "Promouvoir",
     ['retrograde'] = "Rétrograder",
     ['missing_perm'] = "Vous n'avez pas les ~r~droits~w~",
@@ -162,7 +167,7 @@ Locales['fr'] = {
     ['notif_save'] = "~b~Position sauvegarder",
 
     --settings
-    ['settings'] = "Paramètre",
+    ['settings'] = "Paramètres",
     ['color_settings'] = "Couleurs",
     ['red'] = "rouge",
     ['green'] = "vert",
@@ -227,6 +232,11 @@ Locales['fr'] = {
     ['grade_list_desc'] = "Nom : %s\nId : %s",
     ['new_grad_notif'] = "Vous êtes maintenant %s au %s",
 
+    ['job2_list'] = "Job",
+    ['grade2_list'] = "Grades",
+    ['grade2_list_desc'] = "Nom : %s\nId : %s",
+    ['new_grad2_notif'] = "Vous êtes maintenant %s au %s",
+
     ['gang_list'] = "Gang",
 
     ['vehicle'] = "Véhicule",
@@ -254,15 +264,13 @@ Locales['fr'] = {
     ['tp_on_marker'] = "Téléporté sur le marqueur !",
     ['no_marker'] = "Pas de marqueur sur la carte !",
     ['enter_pos'] = "~b~Entrez les coordonées...",
-    ['no_clip_on'] = "Noclip ~g~activé",
+    ['no_clip_on'] = "Noclip <FONT color='#32AF01'>activé",
     ['no_clip_off'] = "Noclip ~r~désactivé",
-    ['god_mode_on'] = "Mode invincible ~g~activé",
+    ['god_mode_on'] = "Mode invincible <FONT color='#32AF01'>activé",
     ['god_mode_off'] = "Mode invincible ~r~désactivé",
-    ['ghost_mode_on'] = "Mode fantôme ~g~ activé",
+    ['ghost_mode_on'] = "Mode fantôme <FONT color='#32AF01'> activé",
     ['ghost_mode_off'] = "Mode fantôme ~r~ désactivé",
     ['enter_veh_name'] = "~b~Entrez le nom du véhicule...",
     ['veh_fliped'] = "Véhicule retourné",
     ['notif_playername'] = "Ouvrir/Fermer le menu pause pour actualiser les noms",
-
-    ['coords'] = "~r~X~s~: %s\n ~b~Y~s~: %s\n ~g~Z~s~: %s\n ~y~Rotation~s~: %s",
 }

@@ -1,6 +1,10 @@
 fx_version 'bodacious'
 game 'gta5'
 
+version '1.5.0'
+description 'Personal menu powered by RageUI'
+author 'Dragonir'
+
 client_scripts {
     "@RageUI/RMenu.lua",
     "@RageUI/menu/RageUI.lua",
@@ -14,6 +18,7 @@ client_scripts {
     "@RageUI/components/Sprite.lua",
     "@RageUI/components/Text.lua",
     "@RageUI/components/Visual.lua",
+    "@RageUI/components/Instructional.lua",
 
     "@RageUI/menu/elements/ItemsBadge.lua",
     "@RageUI/menu/elements/ItemsColour.lua",
@@ -46,7 +51,7 @@ client_scripts {
     'client/anim/crouch.lua',
     'client/anim/handsup.lua',
     'client/anim/pointing.lua',
-    'client/anim/ragdoll.lua',
+    --'client/anim/ragdoll.lua',
 }
 
 server_scripts {
@@ -56,7 +61,8 @@ server_scripts {
 server_scripts {
     '@mysql-async/lib/MySQL.lua',
     'config.lua',
-    'server/main.lua'
+    'server/main.lua',
+    'server/log.lua'
 }
 
 ui_page 'html/ui.html'
