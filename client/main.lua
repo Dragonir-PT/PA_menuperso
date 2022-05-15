@@ -150,6 +150,11 @@ AddEventHandler('esx:setorg', function(job)
     RefreshMoney2()
 end)
 
+RegisterNetEvent('esx:setVip')
+AddEventHandler('esx:setVip', function(vip)
+    ESX.PlayerData.vip = vip
+end)
+
 ---Menu creator
 RMenu.Add('main', 'menuperso', RageUI.CreateMenu(Config.ServerName, _U('personal_menu')))
 
@@ -346,10 +351,10 @@ Citizen.CreateThread(function()
                     end
                 end
             })
-            if ESX.GetPlayerData().vip > 0 then
+            if ESX.PlayerData.vip > 0 then
                 RageUI.Button("Menu VIP", nil, {}, true, {}, RMenu:Get('submenu', 'vip'))
             end
-            if IsPedSittingInAnyVehicle(GetPlayerPed(-1)) then
+            if IsPedSittingInAnyVehicle(PlayerPedId()) then
                 if (GetPedInVehicleSeat(GetVehiclePedIsIn(GetPlayerPed(-1), false), -1) == GetPlayerPed(-1)) then
                     RageUI.Button(_U('vehicle_manager'), nil, {}, true, {}, RMenu:Get('submenu', 'vehicle'))
                 end
