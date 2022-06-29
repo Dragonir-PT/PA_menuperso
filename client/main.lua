@@ -380,7 +380,12 @@ Citizen.CreateThread(function()
         end)
 
         RageUI.IsVisible(RMenu:Get('submenu', 'me'), function()
-            RageUI.Button(_U('inventory'), nil, {}, true, {}, RMenu:Get('submenu', 'inventory'))
+            RageUI.Button(_U('inventory'), nil, {}, true, {
+                onSelected = function()
+                    RageUI.CloseAll()
+                    TriggerEvent('esx_inventoryhud:openInventory')
+                end
+            }--[[, RMenu:Get('submenu', 'inventory')]])
             RageUI.Button(_U('invweapon'), nil, {}, true, {}, RMenu:Get('submenu', 'weapon'))
             RageUI.Button(_U('wallet'), nil, {}, true, {}, RMenu:Get('submenu', 'wallet'))
             if Config.useDoubleKey then
@@ -402,6 +407,7 @@ Citizen.CreateThread(function()
             for _,v in pairs(ESX.PlayerData.inventory) do
                 if v.count > 0 then
                     local label = v.label
+                    print(json.encode(v))
                     if v.data.label ~= nil then
                         label = v.data.label
                     end
