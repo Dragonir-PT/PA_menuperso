@@ -4,11 +4,6 @@
 --- DateTime: 30/08/2020 21:35
 ---
 
----Load ESX
-ESX = nil
-
-TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
-
 function getMaximumGrade(jobname)
     local result = MySQL.Sync.fetchAll("SELECT * FROM job_grades WHERE job_name=@jobname  ORDER BY `grade` DESC ;", {
         ['@jobname'] = jobname

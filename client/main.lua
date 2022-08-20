@@ -4,10 +4,6 @@
 --- DateTime: 30/08/2020 20:53
 ---
 
-
----Load ESX
-ESX = nil
-
 ---local
 local Menu = {
     Inventory = {
@@ -120,16 +116,12 @@ local noclip, inMenu = false, false
 if GetResourceKvpString("menuParam") ~= nil then menuParam = json.decode(GetResourceKvpString("menuParam")) print(GetResourceKvpString("menuParam")) else print(_U('no_settings')) end
 
 Citizen.CreateThread(function()
-    while ESX == nil do
-        TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
-        while ESX.GetPlayerData().job == nil do
-            Citizen.Wait(10)
-        end
-        Menu.Inventory.maxWeight = ESX.PlayerData.maxWeight
-        for i=1, #Config.GPS, 1 do
-            table.insert(Menu.GPS.Data, Config.GPS[i].label)
-        end
-        Citizen.Wait(100)
+    while ESX.GetPlayerData().job == nil do
+        Citizen.Wait(10)
+    end
+    Menu.Inventory.maxWeight = ESX.PlayerData.maxWeight
+    for i=1, #Config.GPS, 1 do
+        table.insert(Menu.GPS.Data, Config.GPS[i].label)
     end
 end)
 
@@ -214,9 +206,14 @@ RMenu.Add('submenu', 'admincar', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admi
 RMenu.Add('submenu', 'adminmisc', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('other')))
 
 ---menu settings
+RMenu:Get('main', 'menuperso'):DisplayGlare(false)
 RMenu:Get('submenu', 'onlinep_action'):DisplayPageCounter(false)
 RMenu:Get('main', 'menuperso').Closed = function()
     inMenu = false
+end
+
+for k in pairs(RMenu:GetType('submenu')) do
+    RMenu:GetType('submenu')[k].Menu:DisplayGlare(false)
 end
 
 ---Key manager
@@ -341,6 +338,7 @@ Citizen.CreateThread(function()
                 })
                 RageUI.Button(_U('anim'), nil, {}, true, {
                     onSelected = function()
+                        inMenu = false
                         RageUI.CloseAll()
                         TriggerEvent('dp:RecieveMenu')
                     end
@@ -361,9 +359,9 @@ Citizen.CreateThread(function()
                         end
                     end
                 })
-                if ESX.PlayerData.vip > 0 then
+                --[[if ESX.PlayerData.vip > 0 then
                     RageUI.Button("Menu VIP", nil, {}, true, {}, RMenu:Get('submenu', 'vip'))
-                end
+                end]]
                 if IsPedSittingInAnyVehicle(PlayerPedId()) then
                     if (GetPedInVehicleSeat(GetVehiclePedIsIn(GetPlayerPed(-1), false), -1) == GetPlayerPed(-1)) then
                         RageUI.Button(_U('vehicle_manager'), nil, {}, true, {}, RMenu:Get('submenu', 'vehicle'))
@@ -392,6 +390,7 @@ Citizen.CreateThread(function()
             RageUI.IsVisible(RMenu:Get('submenu', 'me'), function()
                 RageUI.Button(_U('inventory'), nil, {}, true, {
                     onSelected = function()
+                        inMenu = false
                         RageUI.CloseAll()
                         TriggerEvent('esx_inventoryhud:openInventory')
                     end
