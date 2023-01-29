@@ -24,7 +24,7 @@ Config.Shortcut = {
     job = true,
     animal = true, --for eden_animal
     mobile = true, --for GCPhone
-    radio = true, --for rp-radio mumble
+    radio = false, --for rp-radio mumble
     lockCar = true, --for esx_vehiclelock
     trunk = true, --for Drago_VehChest
     voiceVolume = true, --for mumble-voip
@@ -35,15 +35,15 @@ Config.Locale = 'fr'
 
 Config.GPS = {
     {label = 'Aucun', coords = nil},
-    {label = 'LSPD', coords = vector2(-1110.31,-823.0)},
+    {label = 'LSPD', coords = vector2(425.1, -979.5)},
     {label = 'Garage Central', coords = vector2(254.49,-760.41)},
-    {label = 'Hôpital', coords = vector2(308.66,-587.65)},
-    {label = 'Benny\'s', coords = vector2(-216.07,-1318.92)},
-    {label = 'Mécano', coords = vector2(-339.86,-157.29)},
-    {label = 'Concess Auto', coords = vector2(-41.64,-1092.31)},
-    {label = 'Concess Moto', coords = vector2(34.04,6490.88)},
-    {label = 'Pôle emplois', coords = vector2(-265.0, -963.6)},
-    {label = 'Auto école', coords = vector2(239.471,-1380.960)},
+    {label = 'Hôpital', coords = vector2(289.4, -590.44)},
+    -- {label = 'Benny\'s', coords = vector2(-216.07,-1318.92)},
+    {label = 'Mécano', coords = vector2(-348.02, -151.52)},
+    {label = 'Concess Auto', coords = vector2(-33.7, -1102.0)},
+    -- {label = 'Concess Moto', coords = vector2(34.04,6490.88)},
+    {label = 'Pôle emplois', coords = vector2(-265.08, -964.1)},
+    {label = 'Auto école', coords = vector2(239.471, -1380.960)},
     {label = 'Sandy Shore', coords = vector2(1799.88, 3680.99)},
     {label = 'Paleto Bay', coords = vector2(-105.1, 6304.76)},
 }

@@ -232,7 +232,7 @@ Locales['fr'] = {
     ['grade_list_desc'] = "Nom : %s\nId : %s",
     ['new_grad_notif'] = "Vous êtes maintenant %s au %s",
 
-    ['job2_list'] = "Job",
+    ['gang_list'] = "Job",
     ['grade2_list'] = "Grades",
     ['grade2_list_desc'] = "Nom : %s\nId : %s",
     ['new_grad2_notif'] = "Vous êtes maintenant %s au %s",
