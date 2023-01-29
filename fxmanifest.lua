@@ -40,12 +40,15 @@ client_scripts {
 
     "@RageUI/menu/windows/UIHeritage.lua",
 }
-client_scripts {
+
+shared_scripts {
+    '@es_extended/imports.lua',
     '@es_extended/locale.lua',
     'locales/*.lua',
-}
-client_scripts {
     'config.lua',
+}
+
+client_scripts {
     'client/main.lua',
     'client/anim/crossarms.lua',
     'client/anim/crouch.lua',
@@ -55,12 +58,7 @@ client_scripts {
 }
 
 server_scripts {
-    '@es_extended/locale.lua',
-    'locales/*.lua',
-}
-server_scripts {
-    '@mysql-async/lib/MySQL.lua',
-    'config.lua',
+    '@oxmysql/lib/MySQL.lua',
     'server/main.lua',
     'server/log.lua'
 }
