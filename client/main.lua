@@ -289,7 +289,7 @@ if Config.Shortcut.trunk then
 end
 if Config.Shortcut.voiceVolume then
     Keys.Register('F3', 'voice_volum', _U('change_voice'), function()
-        TriggerEvent('Drago_menuperso:VoiceVolum', true)
+        TriggerEvent('Drago_menuperso:VoiceVolum')
     end)
 end
 if Config.Shortcut.dpclothing then
