@@ -54,7 +54,7 @@ client_scripts {
     'client/anim/crouch.lua',
     'client/anim/handsup.lua',
     'client/anim/pointing.lua',
-    --'client/anim/ragdoll.lua',
+    'client/anim/ragdoll.lua',
 }
 
 server_scripts {
