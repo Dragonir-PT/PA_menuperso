@@ -1337,8 +1337,6 @@ Citizen.CreateThread(function()
                 })
                 RageUI.Button(_U('reset'), nil, {}, true, {
                     onSelected = function()
-                        RageUI.CloseAll()
-                        table.remove(menuParam, 1)
                         DeleteResourceKvp("menuParam")
                         Visual.Popup("Paramètres réinitialisé\nDéconnectez vous pour appliquer les paramètres")
                     end
