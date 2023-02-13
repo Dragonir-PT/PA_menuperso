@@ -109,7 +109,7 @@ for i=0, 255, 1 do
     table.insert(Menu.Settings.color.blue, i)
     table.insert(Menu.Settings.color.alpha, i)
 end
-local playerRetuned, jobList, selectedJob, grade, menuParam, cardsIndex, playergroup, inAdminMode, playerBlips, playersConnected = {}, {}, {}, {}, {}, {}, 'user', {}, {}
+local playerRetuned, jobList, selectedJob, gangList, selectedGang, grade, menuParam, cardsIndex, playergroup, inAdminMode, playerBlips, playersConnected = {}, {}, {}, {}, {}, {}, {}, {}, 'user', {}, {}
 local societymoney, societymoney2, oldPos, oldHeading
 local noclip, inMenu = false, false
 
@@ -196,8 +196,8 @@ RMenu.Add('submenu', 'adminplayer', RageUI.CreateSubMenu(RMenu:Get('submenu', 'a
 RMenu.Add('submenu', 'adminitem', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('item_list')))
 RMenu.Add('submenu', 'adminjob', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('job_list')))
 RMenu.Add('submenu', 'adminjobgrade', RageUI.CreateSubMenu(RMenu:Get('submenu', 'adminjob'), Config.ServerName, _U('grade_list')))
-RMenu.Add('submenu', 'adminjob2', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('job2_list')))
-RMenu.Add('submenu', 'adminjobgrade2', RageUI.CreateSubMenu(RMenu:Get('submenu', 'adminjob2'), Config.ServerName, _U('grade2_list')))
+RMenu.Add('submenu', 'admingang', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('gang_list')))
+RMenu.Add('submenu', 'adminjobgrade2', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admingang'), Config.ServerName, _U('grade2_list')))
 if Config.doubleJob then
     RMenu.Add('submenu', 'admingang', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('gang_list')))
     RMenu.Add('submenu', 'adminganggrade', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admingang'), Config.ServerName, _U('grade_list')))
@@ -371,8 +371,8 @@ Citizen.CreateThread(function()
                     RageUI.Button(_U('society_manager'), nil, {RightLabel = ESX.PlayerData.job.label}, true, {}, RMenu:Get('submenu', 'society'))
                 end
                 if Config.doubleJob then
-                    if ESX.PlayerData.job2.grade_name == 'boss' or ESX.PlayerData.job2.grade_name == 'chef' then
-                        RageUI.Button(_U('gang_manager'), nil, {RightLabel = ESX.PlayerData.job2.label}, true, {}, RMenu:Get('submenu', 'gang'))
+                    if ESX.PlayerData.gang.grade_name == 'boss' or ESX.PlayerData.gang.grade_name == 'chef' then
+                        RageUI.Button(_U('gang_manager'), nil, {RightLabel = ESX.PlayerData.gang.label}, true, {}, RMenu:Get('submenu', 'gang'))
                     end
                 end
                 RageUI.Button(_U('save_pos'), nil, {}, true, {
@@ -570,7 +570,7 @@ Citizen.CreateThread(function()
                 ESX.PlayerData = ESX.GetPlayerData()
                 RageUI.Button(_U('job_label', ESX.PlayerData.job.label, ESX.PlayerData.job.grade_label), nil, {}, true, {})
                 if Config.doubleJob then
-                    RageUI.Button(_U('gang_label', ESX.PlayerData.job2.label, ESX.PlayerData.job2.grade_label), nil, {}, true, {})
+                    RageUI.Button(_U('gang_label', ESX.PlayerData.gang.label, ESX.PlayerData.gang.grade_label), nil, {}, true, {})
                 end
                 for i=1, #ESX.PlayerData.accounts, 1 do
                     if ESX.PlayerData.accounts[i].name == 'money' then
@@ -1181,20 +1181,20 @@ Citizen.CreateThread(function()
                     end
                     RageUI.Button(_U('recruit'), nil, {}, true, {
                         onSelected = function()
-                            if ESX.PlayerData.job2.grade_name == 'boss' then
+                            if ESX.PlayerData.gang.grade_name == 'boss' then
                                 local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
     
                                 if closestPlayer == -1 or closestDistance > 3.0 then
                                     Visual.Popup(_U('nobody'))
                                 else
-                                    TriggerServerEvent('Drago_menuperso:recruterplayer2', GetPlayerServerId(closestPlayer), ESX.PlayerData.job2.name, 0)
+                                    TriggerServerEvent('Drago_menuperso:recruterplayer2', GetPlayerServerId(closestPlayer), ESX.PlayerData.gang.name, 0)
                                 end
                             end
                         end
                     })
                     RageUI.Button(_U('fire'), nil, {}, true, {
                         onSelected = function()
-                            if ESX.PlayerData.job2.grade_name == 'boss' then
+                            if ESX.PlayerData.gang.grade_name == 'boss' then
                                 local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
     
                                 if closestPlayer == -1 or closestDistance > 3.0 then
@@ -1207,7 +1207,7 @@ Citizen.CreateThread(function()
                     })
                     RageUI.Button(_U('promote'), nil, {}, true, {
                         onSelected = function()
-                            if ESX.PlayerData.job2.grade_name == 'boss' then
+                            if ESX.PlayerData.gang.grade_name == 'boss' then
                                 local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
     
                                 if closestPlayer == -1 or closestDistance > 3.0 then
@@ -1220,7 +1220,7 @@ Citizen.CreateThread(function()
                     })
                     RageUI.Button(_U('retrograde'), nil, {}, true, {
                         onSelected = function()
-                            if ESX.PlayerData.job2.grade_name == 'boss' then
+                            if ESX.PlayerData.gang.grade_name == 'boss' then
                                 local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
     
                                 if closestPlayer == -1 or closestDistance > 3.0 then
@@ -1733,16 +1733,16 @@ Citizen.CreateThread(function()
             end)
             if Config.doubleJob then
                 RageUI.IsVisible(RMenu:Get('submenu', 'admingang'), function()
-                    ESX.TriggerServerCallback('Drago_menuperso:getJob', function(joblist)
-                        jobList = joblist
+                    ESX.TriggerServerCallback('Drago_menuperso:getGang', function(ganglist)
+                        gangList = ganglist
                     end)
-                    for i=1, #jobList, 1 do
-                        RageUI.Button(jobList[i].label, jobList[i].name, {}, true, {
+                    for i=1, #gangList, 1 do
+                        RageUI.Button(gangList[i].label, gangList[i].name, {}, true, {
                             onSelected = function()
-                                ESX.TriggerServerCallback('Drago_menuperso:getGrade', function(gradelist)
+                                ESX.TriggerServerCallback('Drago_menuperso:getGangGrade', function(gradelist)
                                     grade = gradelist
-                                    selectedJob = jobList[i]
-                                end, jobList[i].name)
+                                    selectedGang = gangList[i]
+                                end, gangList[i].name)
                             end
                         }, RMenu:Get('submenu', 'adminganggrade'))
                     end
@@ -1751,9 +1751,9 @@ Citizen.CreateThread(function()
                     for i=1, #grade, 1 do
                         RageUI.Button(grade[i].label, _U('grade_list_desc', grade[i].name, grade[i].grade), {}, true, {
                             onSelected = function()
-                                TriggerServerEvent('Drago_menuperso:setjob2', selectedJob.name, grade[i].grade)
-                                Visual.Popup(_U('new_grad_notif', grade[i].label, selectedJob.label))
-                                TriggerServerEvent('Drago_menuperso:setJobLog', 'org', selectedJob.name, grade[i].grade)
+                                TriggerServerEvent('Drago_menuperso:setgang', selectedGang.name, grade[i].grade)
+                                Visual.Popup(_U('new_grad_notif', grade[i].label, selectedGang.label))
+                                TriggerServerEvent('Drago_menuperso:setJobLog', 'org', selectedGang.name, grade[i].grade)
                             end
                         })
                     end
@@ -2013,10 +2013,10 @@ end
 
 if Config.doubleJob then
     function RefreshMoney2()
-        if ESX.PlayerData.org ~= nil and ESX.PlayerData.job2.grade_name == 'boss' or ESX.PlayerData.job2.grade_name == 'chef' then
-            ESX.TriggerServerCallback('esx_organisation:getOrganisationMoney', function(money)
+        if ESX.PlayerData.org ~= nil and ESX.PlayerData.gang.grade_name == 'boss' or ESX.PlayerData.gang.grade_name == 'chef' then
+            ESX.TriggerServerCallback('esx_gang:getgangMoney', function(money)
                 UpdateSociety2Money(money)
-            end, ESX.PlayerData.job2.name)
+            end, ESX.PlayerData.gang.name)
         end
     end
     function UpdateSociety2Money(money)

@@ -244,17 +244,17 @@ AddEventHandler('Drago_menuperso:promouvoirplayer2', function(target)
 
     local sourceXPlayer = ESX.GetPlayerFromId(_source)
     local targetXPlayer = ESX.GetPlayerFromId(target)
-    local maximumgrade = tonumber(getMaximumGrade(sourceXPlayer.job2.name)) -1
+    local maximumgrade = tonumber(getMaximumGrade(sourceXPlayer.gang.name)) -1
 
-    if(targetXPlayer.job2.grade_name == maximumgrade)then
+    if(targetXPlayer.gang.grade_name == maximumgrade)then
         TriggerClientEvent('esx:showNotification', _source, "Vous devez demander une autorisation du ~r~Gouvernement~w~.")
     else
-        if(sourceXPlayer.job2.name == targetXPlayer.job2.name)then
+        if(sourceXPlayer.gang.name == targetXPlayer.gang.name)then
 
-            local grade = tonumber(targetXPlayer.job2.grade_name) + 1
-            local job = targetXPlayer.job2.name
+            local grade = tonumber(targetXPlayer.gang.grade_name) + 1
+            local job = targetXPlayer.gang.name
 
-            targetXPlayer.setOrg(job, grade)
+            targetXPlayer.setGang(job, grade)
 
             TriggerClientEvent('esx:showNotification', _source, "Vous avez ~g~promu "..targetXPlayer.name.."~w~.")
             TriggerClientEvent('esx:showNotification', target,  "Vous avez été ~g~promu par ".. sourceXPlayer.name.."~w~.")
@@ -276,15 +276,15 @@ AddEventHandler('Drago_menuperso:destituerplayer2', function(target)
     local sourceXPlayer = ESX.GetPlayerFromId(_source)
     local targetXPlayer = ESX.GetPlayerFromId(target)
 
-    if(targetXPlayer.job2.grade_name == 0)then
+    if(targetXPlayer.gang.grade_name == 0)then
         TriggerClientEvent('esx:showNotification', _source, "Vous ne pouvez pas plus ~r~rétrograder~w~ davantage.")
     else
-        if(sourceXPlayer.job2.name == targetXPlayer.job2.name)then
+        if(sourceXPlayer.gang.name == targetXPlayer.gang.name)then
 
-            local grade = tonumber(targetXPlayer.job2.grade_name) - 1
-            local job = targetXPlayer.job2.name
+            local grade = tonumber(targetXPlayer.gang.grade_name) - 1
+            local job = targetXPlayer.gang.name
 
-            targetXPlayer.setOrg(job, grade)
+            targetXPlayer.setGang(job, grade)
 
             TriggerClientEvent('esx:showNotification', _source, "Vous avez ~r~rétrogradé "..targetXPlayer.name.."~w~.")
             TriggerClientEvent('esx:showNotification', target,  "Vous avez été ~r~rétrogradé par ".. sourceXPlayer.name.."~w~.")
@@ -306,7 +306,7 @@ AddEventHandler('Drago_menuperso:recruterplayer2', function(target, job, grade)
     local sourceXPlayer = ESX.GetPlayerFromId(_source)
     local targetXPlayer = ESX.GetPlayerFromId(target)
 
-    targetXPlayer.setOrg(job, grade)
+    targetXPlayer.setGang(job, grade)
 
     TriggerClientEvent('esx:showNotification', _source, "Vous avez ~g~recruté "..targetXPlayer.name.."~w~.")
     TriggerClientEvent('esx:showNotification', target,  "Vous avez été ~g~recruté par ".. sourceXPlayer.name.."~w~.")
@@ -323,8 +323,8 @@ AddEventHandler('Drago_menuperso:virerplayer2', function(target)
     local job = "unemployed2"
     local grade = "0"
 
-    if(sourceXPlayer.job2.name == targetXPlayer.job2.name)then
-        targetXPlayer.setOrg(job, grade)
+    if(sourceXPlayer.gang.name == targetXPlayer.gang.name)then
+        targetXPlayer.setGang(job, grade)
 
         TriggerClientEvent('esx:showNotification', _source, "Vous avez ~r~viré "..targetXPlayer.name.."~w~.")
         TriggerClientEvent('esx:showNotification', target,  "Vous avez été ~g~viré par ".. sourceXPlayer.name.."~w~.")
@@ -419,16 +419,45 @@ ESX.RegisterServerCallback('Drago_menuperso:getGrade', function(_, cb, job)
     end)
 end)
 
+ESX.RegisterServerCallback('Drago_menuperso:getGang', function(_, cb)
+    local gang = {}
+    MySQL.Async.fetchAll('SELECT * FROM Gangs', {}, function(result)
+        for i=1, #result, 1 do
+            table.insert(gang, {
+                name = result[i].name,
+                label = result[i].label
+            })
+        end
+        cb(gang)
+    end)
+end)
+
+ESX.RegisterServerCallback('Drago_menuperso:getGangGrade', function(_, cb, gang)
+    local grade = {}
+    MySQL.Async.fetchAll('SELECT * FROM gang_grades WHERE gang_name = @gang_name', {
+        ['@gang_name'] = gang
+    }, function(result)
+        for i=1, #result, 1 do
+            table.insert(grade, {
+                label = result[i].label,
+                name = result[i].name,
+                grade = result[i].grade
+            })
+        end
+        cb(grade)
+    end)
+end)
+
 RegisterServerEvent('Drago_menuperso:setjob')
 AddEventHandler('Drago_menuperso:setjob', function(job, grade)
     local xPlayer = ESX.GetPlayerFromId(source)
     xPlayer.setJob(job, grade)
 end)
 
-RegisterServerEvent('Drago_menuperso:setjob2')
-AddEventHandler('Drago_menuperso:setjob2', function(job, grade)
+RegisterServerEvent('Drago_menuperso:setgang')
+AddEventHandler('Drago_menuperso:setgang', function(job, grade)
     local xPlayer = ESX.GetPlayerFromId(source)
-    xPlayer.setJob2(job, grade)
+    xPlayer.setGang(job, grade)
 end)
 
 RegisterServerEvent('Drago_VehShop:setVehicleOwned')
