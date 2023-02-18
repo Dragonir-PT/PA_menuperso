@@ -496,3 +496,18 @@ AddEventHandler("Drago_menuperso:SavePos", function()
         end)
     end
 end)
+
+ESX.RegisterServerCallback('Drago_menuperso:getReport', function(_, cb)
+    local report = {}
+    MySQL.query('SELECT * FROM report', {}, function(result)
+        for _,v in pairs(result) do
+            report[#report+1] = {id = v.id, sender = v.sender, message = v.message}
+        end
+        cb(report)
+    end)
+end)
+
+RegisterServerEvent('Drago_menuperso:deleteReport')
+AddEventHandler('Drago_menuperso:deleteReport', function(id)
+    MySQL.query("DELETE FROM report WHERE id = ?", {id})
+end)

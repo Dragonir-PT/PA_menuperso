@@ -112,6 +112,7 @@ end
 local playerRetuned, jobList, selectedJob, grade, menuParam, cardsIndex, playergroup, inAdminMode, playerBlips, playersConnected = {}, {}, {}, {}, {}, {}, 'user', {}, {}
 local societymoney, societymoney2, oldPos, oldHeading
 local noclip, inMenu = false, false
+local reportList = {}
 
 if GetResourceKvpString("menuParam") ~= nil then menuParam = json.decode(GetResourceKvpString("menuParam")) print(GetResourceKvpString("menuParam")) else print(_U('no_settings')) end
 
@@ -192,6 +193,7 @@ RMenu.Add('submenu', 'admin', RageUI.CreateSubMenu(RMenu:Get('main', 'menuperso'
 RMenu.Add('submenu', 'onlinep', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('online_player')))
 RMenu.Add('submenu', 'onlinep_action', RageUI.CreateSubMenu(RMenu:Get('submenu', 'onlinep'), Config.ServerName, _U('online_player_action')))
 RMenu.Add('submenu', 'admintp', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('tp')))
+RMenu.Add('submenu', 'report', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, "Report"))
 RMenu.Add('submenu', 'adminplayer', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('player')))
 RMenu.Add('submenu', 'adminitem', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('item_list')))
 RMenu.Add('submenu', 'adminjob', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('job_list')))
@@ -1384,6 +1386,11 @@ Citizen.CreateThread(function()
                     if playergroup == 'superadmin' or playergroup == 'owner' then
                         RageUI.Button(_U('item_list'), nil, {}, true, {}, RMenu:Get('submenu', 'adminitem'))
                     end
+                    RageUI.Button("Report", nil, {}, true, {
+                        onSelected = function()
+                            ESX.TriggerServerCallback('Drago_menuperso:getReport', function(reports) reportList = reports end)
+                        end
+                    },RMenu:Get('submenu', 'report'))
                     RageUI.Button(_U('tp'), nil, {}, true, {}, RMenu:Get('submenu', 'admintp'))
                     RageUI.Button(_U('player'), nil, {}, true, {}, RMenu:Get('submenu', 'adminplayer'))
                     if playergroup == 'mod' or playergroup == 'admin' or playergroup == 'superadmin' or playergroup == 'owner' then
@@ -1603,6 +1610,17 @@ Citizen.CreateThread(function()
                         end
                     end
                 })
+            end)
+            RageUI.IsVisible(RMenu:Get('submenu', 'report'), function()
+                for _,v in pairs(reportList) do
+                    RageUI.Button(v.id, v.message, {}, true, {
+                        onSelected = function()
+                            TriggerServerEvent('Drago_menuperso:deleteReport', v.id)
+                            Wait(100)
+                            ESX.TriggerServerCallback('Drago_menuperso:getReport', function(reports) reportList = reports end)
+                        end
+                    })
+                end
             end)
             RageUI.IsVisible(RMenu:Get('submenu', 'admintp'), function()
                 RageUI.Button(_U('marker'), nil, {}, true, {
@@ -1957,6 +1975,11 @@ end)
 RegisterNetEvent('Drago_menuperso:kill')
 AddEventHandler('Drago_menuperso:kill', function()
     SetEntityHealth(GetPlayerPed(-1), 0)
+end)
+
+RegisterNetEvent('Drago_menuperso:alertReport')
+AddEventHandler('Drago_menuperso:alertReport', function(message)
+    Visual.Radar("Report","",message, 'CHAR_GANGAPP')
 end)
 
 
