@@ -419,6 +419,35 @@ ESX.RegisterServerCallback('Drago_menuperso:getGrade', function(_, cb, job)
     end)
 end)
 
+ESX.RegisterServerCallback('Drago_menuperso:getGang', function(_, cb)
+    local gang = {}
+    MySQL.Async.fetchAll('SELECT * FROM gangs', {}, function(result)
+        for i=1, #result, 1 do
+            table.insert(gang, {
+                name = result[i].name,
+                label = result[i].label
+            })
+        end
+        cb(gang)
+    end)
+end)
+
+ESX.RegisterServerCallback('Drago_menuperso:getGangGrade', function(_, cb, gang)
+    local grade = {}
+    MySQL.Async.fetchAll('SELECT * FROM gang_grades WHERE gang_name = @gang_name', {
+        ['@gang_name'] = gang
+    }, function(result)
+        for i=1, #result, 1 do
+            table.insert(grade, {
+                label = result[i].label,
+                name = result[i].name,
+                grade = result[i].grade
+            })
+        end
+        cb(grade)
+    end)
+end)
+
 RegisterServerEvent('Drago_menuperso:setjob')
 AddEventHandler('Drago_menuperso:setjob', function(job, grade)
     local xPlayer = ESX.GetPlayerFromId(source)
@@ -426,9 +455,9 @@ AddEventHandler('Drago_menuperso:setjob', function(job, grade)
 end)
 
 RegisterServerEvent('Drago_menuperso:setgang')
-AddEventHandler('Drago_menuperso:setgang', function(job, grade)
+AddEventHandler('Drago_menuperso:setgang', function(gang, grade)
     local xPlayer = ESX.GetPlayerFromId(source)
-    xPlayer.setJob2(job, grade)
+    xPlayer.setGang(gang, grade)
 end)
 
 RegisterServerEvent('Drago_VehShop:setVehicleOwned')

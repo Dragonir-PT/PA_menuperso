@@ -1735,13 +1735,13 @@ Citizen.CreateThread(function()
             end)
             if Config.doubleJob then
                 RageUI.IsVisible(RMenu:Get('submenu', 'admingang'), function()
-                    ESX.TriggerServerCallback('Drago_menuperso:getJob', function(joblist)
+                    ESX.TriggerServerCallback('Drago_menuperso:getGang', function(joblist)
                         jobList = joblist
                     end)
                     for i=1, #jobList, 1 do
                         RageUI.Button(jobList[i].label, jobList[i].name, {}, true, {
                             onSelected = function()
-                                ESX.TriggerServerCallback('Drago_menuperso:getGrade', function(gradelist)
+                                ESX.TriggerServerCallback('Drago_menuperso:getGangGrade', function(gradelist)
                                     grade = gradelist
                                     selectedJob = jobList[i]
                                 end, jobList[i].name)

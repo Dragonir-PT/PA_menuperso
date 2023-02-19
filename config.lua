@@ -14,7 +14,7 @@ Config = {}
 
 Config.TitlePlayerName = true --make the player name as title for all the menu
 
-Config.ServerName = "CosmoRP" --if TitlePlayerName was false, the title was define from this
+Config.ServerName = "G2V" --if TitlePlayerName was false, the title was define from this
 
 Config.doubleJob = true
 Config.idCard = true
