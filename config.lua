@@ -26,7 +26,7 @@ Config.Shortcut = {
     mobile = true, --for GCPhone
     radio = false, --for rp-radio mumble
     lockCar = true, --for esx_vehiclelock
-    trunk = true, --for Drago_VehChest
+    trunk = false, --for Drago_VehChest
     voiceVolume = true, --for mumble-voip
     dpclothing = true --for dpclothing
 }
