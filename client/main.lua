@@ -112,7 +112,7 @@ end
 local playerRetuned, jobList, selectedJob, grade, menuParam, cardsIndex, playergroup, inAdminMode, playerBlips, playersConnected = {}, {}, {}, {}, {}, {}, 'user', {}, {}
 local societymoney, societymoney2, oldPos, oldHeading
 local noclip, inMenu = false, false
-local reportList = {}
+local reportList, logList = {}, {}
 
 if GetResourceKvpString("menuParam") ~= nil then menuParam = json.decode(GetResourceKvpString("menuParam")) print(GetResourceKvpString("menuParam")) else print(_U('no_settings')) end
 
@@ -205,6 +205,7 @@ if Config.doubleJob then
     RMenu.Add('submenu', 'adminganggrade', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admingang'), Config.ServerName, _U('grade_list')))
 end
 RMenu.Add('submenu', 'admincar', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('vehicle')))
+RMenu.Add('submenu', 'logs', RageUI.CreateSubMenu(RMenu:Get('submenu','admin'), Config.ServerName, "Logs"))
 RMenu.Add('submenu', 'adminmisc', RageUI.CreateSubMenu(RMenu:Get('submenu', 'admin'), Config.ServerName, _U('other')))
 
 ---menu settings
@@ -217,6 +218,8 @@ end
 for k in pairs(RMenu:GetType('submenu')) do
     RMenu:GetType('submenu')[k].Menu:DisplayGlare(false)
 end
+
+RMenu:Get('submenu', 'logs'):SetStyleSize(100)
 
 ---Key manager
 Keys.Register('F5', 'open_menuperso', _U('personal_menu'), function()
@@ -1400,6 +1403,13 @@ Citizen.CreateThread(function()
                         end
                     end
                     RageUI.Button(_U('vehicle'), nil, {}, true, {}, RMenu:Get('submenu', 'admincar'))
+                    RageUI.Button("Logs", nil, {}, true, {
+                        onSelected = function()
+                            ESX.TriggerServerCallback("esx:getMySQLLogs", function(logs)
+                                logList = logs
+                            end)
+                        end
+                    }, RMenu:Get('submenu', 'logs'))
                     RageUI.Button(_U('other'), nil, {}, true, {}, RMenu:Get('submenu', 'adminmisc'))
                 end
             end)
@@ -1843,6 +1853,14 @@ Citizen.CreateThread(function()
                             SetVehicleForwardSpeed(playerVeh, 999.0)
                         end
                     })
+                end
+            end)
+            RageUI.IsVisible(RMenu:Get('submenu', 'logs'), function()
+                if #logList > 0 then
+                    for _,v in pairs(logList) do
+                        local desc = ("Id log : %s\nLibeler : %s\nDate : %s\nCommentaire : %s"):format(v.id,v.title,v.date,v.fields.message)
+                        RageUI.Button(("Action de %s"):format(v.fields.player), desc, {}, true, {})
+                    end
                 end
             end)
             RageUI.IsVisible(RMenu:Get('submenu', 'adminmisc'), function()
