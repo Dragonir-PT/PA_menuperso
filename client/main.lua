@@ -109,7 +109,7 @@ for i=0, 255, 1 do
     table.insert(Menu.Settings.color.blue, i)
     table.insert(Menu.Settings.color.alpha, i)
 end
-local playerRetuned, jobList, selectedJob, grade, menuParam, cardsIndex, playergroup, inAdminMode, playerBlips, playersConnected = {}, {}, {}, {}, {}, {}, 'user', {}, {}
+local playerRetuned, jobList, selectedJob, grade, menuParam, cardsIndex, playergroup, inAdminMode, playerBlips, playersConnected = {}, {}, {}, {}, {}, {}, 'user', false, {}, {}
 local societymoney, societymoney2, oldPos, oldHeading
 local noclip, inMenu = false, false
 local reportList, logList = {}, {}
@@ -2150,6 +2150,16 @@ Citizen.CreateThread(function()
             noclip = not noclip
             Menu.admin.noClip = noclip
             admin_no_clip(noclip)
+        end
+    end
+end)
+
+-- show radar for admin
+Citizen.CreateThread(function()
+    while true do 
+        Wait(0)
+        if inAdminMode then
+            DisplayRadar(true)
         end
     end
 end)
