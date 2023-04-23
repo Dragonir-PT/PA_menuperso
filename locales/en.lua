@@ -6,7 +6,6 @@ Locales['en'] = {
     ['open_phone'] = "Phone",
     ['open_radio'] = "Radio",
     ['open_car'] = "Open/Close vehicle",
-    ['open_trunk'] = "Coffre véhicle",
     ['change_voice'] = "Change voice proximity",
     ['manage_clothe'] = "Manage clothe",
     ['handsup'] = "Hands up",
@@ -190,7 +189,6 @@ Locales['en'] = {
     ['spectate'] = "Spectate player",
     ['cant_spectate'] = "You can't spectate yourself",
     ['stop_spectate'] = "You stop spectating",
-    ['spectate'] = "You spectate ~y~%s",
     ['spectate_desc'] = "If mumble-voip or toko-voip are on use, you can't hear and speak to the player",
     ['toggle_gps'] = "Toggle GPS",
     ['toggle_gps_off'] = "GPS off",
@@ -224,8 +222,6 @@ Locales['en'] = {
     ['grade_list'] = "Grades",
     ['grade_list_desc'] = "Name : %s\nId : %s",
     ['new_grad_notif'] = "You are now %s in %s",
-
-    ['gang_list'] = "Gang",
 
     ['vehicle'] = "Vehicle",
     ['repair_veh'] = "Repair vehicle",

@@ -6,7 +6,6 @@ Locales['fr'] = {
     ['open_phone'] = "Téléphone",
     ['open_radio'] = "Radio",
     ['open_car'] = "Ouvrir/fermer véhicule",
-    ['open_trunk'] = "Coffre véhicule",
     ['change_voice'] = "Varier le volume de la voix",
     ['manage_clothe'] = "Gestion tenue",
     ['handsup'] = "Lever les mains",
@@ -232,12 +231,10 @@ Locales['fr'] = {
     ['grade_list_desc'] = "Nom : %s\nId : %s",
     ['new_grad_notif'] = "Vous êtes maintenant %s au %s",
 
-    ['gang_list'] = "Job",
     ['grade2_list'] = "Grades",
     ['grade2_list_desc'] = "Nom : %s\nId : %s",
     ['new_grad2_notif'] = "Vous êtes maintenant %s au %s",
 
-    ['gang_list'] = "Gang",
 
     ['vehicle'] = "Véhicule",
     ['repair_veh'] = "Réparer véhicule",

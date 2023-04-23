@@ -364,7 +364,7 @@ Citizen.CreateThread(function()
                     RageUI.Button("Menu VIP", nil, {}, true, {}, RMenu:Get('submenu', 'vip'))
                 end]]
                 if IsPedSittingInAnyVehicle(PlayerPedId()) then
-                    if (GetPedInVehicleSeat(GetVehiclePedIsIn(GetPlayerPed(-1), false), -1) == GetPlayerPed(-1)) then
+                    if (GetPedInVehicleSeat(GetVehiclePedIsIn(PlayerPedId(), false), -1) == PlayerPedId()) then
                         RageUI.Button(_U('vehicle_manager'), nil, {}, true, {}, RMenu:Get('submenu', 'vehicle'))
                     end
                 end
@@ -464,13 +464,12 @@ Citizen.CreateThread(function()
                 RageUI.Button(_U('drop'), nil, {RightBadge = RageUI.BadgeStyle.Alert}, true, {
                     onSelected = function()
                         if Menu.Inventory.itemSelected.canRemove == 1 then
-                            if not IsPedSittingInAnyVehicle(plyPed) then
+                            if not IsPedSittingInAnyVehicle(PlayerPedId()) then
                                 local post, quantity = Visual.CheckQuantity(Visual.KeyboardInput(_U('quantity'), '', 7))
                                 if post then
                                     if quantity ~= nil or quantity > 0 and quantity <= Menu.Inventory.itemSelected.count then
                                         TriggerServerEvent('esx:removeInventoryItem', 'item_standard', Menu.Inventory.itemSelected.name, quantity)
                                         RageUI.CloseAll()
-                                        currentWeight = 0
                                         Citizen.Wait(100)
                                     else
                                         Visual.Popup(_U('invalid_quantity'))
@@ -825,7 +824,7 @@ Citizen.CreateThread(function()
                 end)
                 RageUI.IsVisible(RMenu:Get('submenu', 'keyaction'), function()
                     local player, distance = ESX.Game.GetClosestPlayer()
-                    local playerPed = GetPlayerPed(-1)
+                    local playerPed = PlayerPedId()
                     local coords    = GetEntityCoords(playerPed, true)
                     local vehicle = GetClosestVehicle(coords.x, coords.y, coords.z, 7.0, 0, 71)
                     local vehicleProps = ESX.Game.GetVehicleProperties(vehicle)
@@ -872,9 +871,9 @@ Citizen.CreateThread(function()
                 RageUI.Button(_U('info_veh'), nil, {}, true, {}, RMenu:Get('submenu', 'vehinfo'))
                 RageUI.Button(_U('engine_on_off'), nil, {}, true,{
                     onSelected = function()
-                        if not IsPedSittingInAnyVehicle(GetPlayerPed(-1)) then
+                        if not IsPedSittingInAnyVehicle(PlayerPedId()) then
                             Visual.Popup(_U'inside_veh')
-                        elseif IsPedSittingInAnyVehicle(GetPlayerPed(-1)) then
+                        elseif IsPedSittingInAnyVehicle(PlayerPedId()) then
                             local plyVeh = GetVehiclePedIsIn(plyPed, false)
     
                             if GetIsVehicleEngineRunning(plyVeh) then
@@ -1014,7 +1013,7 @@ Citizen.CreateThread(function()
                 })
             end)
             RageUI.IsVisible(RMenu:Get('submenu', 'vehinfo'), function()
-                Menu.Vehicle.Info.Engine.Data = GetVehicleEngineHealth(GetVehiclePedIsIn(GetPlayerPed(-1)))
+                Menu.Vehicle.Info.Engine.Data = GetVehicleEngineHealth(GetVehiclePedIsIn(PlayerPedId()))
                 if Menu.Vehicle.Info.Engine.Data >= 750 then
                     Menu.Vehicle.Info.Engine.State = Menu.Vehicle.Info.Engine.ActualState[1]
                 elseif Menu.Vehicle.Info.Engine.Data < 750 and Menu.Vehicle.Info.Engine.Data >= 250 then
@@ -1024,7 +1023,7 @@ Citizen.CreateThread(function()
                 else
                     Menu.Vehicle.Info.Engine.State = Menu.Vehicle.Info.Engine.ActualState[4]
                 end
-                Menu.Vehicle.Info.Body.Data = GetVehicleBodyHealth(GetVehiclePedIsIn(GetPlayerPed(-1)))
+                Menu.Vehicle.Info.Body.Data = GetVehicleBodyHealth(GetVehiclePedIsIn(PlayerPedId()))
                 if Menu.Vehicle.Info.Body.Data >= 750 then
                     Menu.Vehicle.Info.Body.State = Menu.Vehicle.Info.Body.ActualState[1]
                 elseif Menu.Vehicle.Info.Body.Data < 750 and Menu.Vehicle.Info.Body.Data >= 250 then
@@ -1034,7 +1033,7 @@ Citizen.CreateThread(function()
                 else
                     Menu.Vehicle.Info.Body.State = Menu.Vehicle.Info.Body.ActualState[4]
                 end
-                Menu.Vehicle.Info.Tank.Data = GetVehiclePetrolTankHealth(GetVehiclePedIsIn(GetPlayerPed(-1)))
+                Menu.Vehicle.Info.Tank.Data = GetVehiclePetrolTankHealth(GetVehiclePedIsIn(PlayerPedId()))
                 if Menu.Vehicle.Info.Tank.Data >= 750 then
                     Menu.Vehicle.Info.Tank.State = Menu.Vehicle.Info.Tank.ActualState[1]
                 elseif Menu.Vehicle.Info.Tank.Data < 750 and Menu.Vehicle.Info.Tank.Data >= 250 then
@@ -1045,10 +1044,10 @@ Citizen.CreateThread(function()
                     Menu.Vehicle.Info.Tank.State = Menu.Vehicle.Info.Tank.ActualState[4]
                 end
                 --
-                local playerPed = GetPlayerPed(-1)
+                local playerPed = PlayerPedId()
                 local playerVeh = GetVehiclePedIsIn(playerPed)
                 local vehicle = ESX.Game.GetVehicleProperties(playerVeh)
-                local model = vehicle.model
+                local model = vehicle?.model
                 local class = GetVehicleClassFromName(model)
                 local classLabel = ''
                 if class == 0 then
@@ -1653,7 +1652,7 @@ Citizen.CreateThread(function()
                             if y ~= nil then
                                 local z = Visual.KeyboardInput("Z", '', 10)
                                 if z ~= nil then
-                                    SetEntityCoords(GetPlayerPed(-1), x + 0.001, y + 0.001, z + 0.001)
+                                    SetEntityCoords(PlayerPedId(), x + 0.001, y + 0.001, z + 0.001)
                                 end
                             end
                         end
@@ -1776,7 +1775,7 @@ Citizen.CreateThread(function()
                 local playerVeh = GetVehiclePedIsIn(playerPed)
                 RageUI.Button(_U('repair_veh'), nil, {}, true, {
                     onSelected = function()
-                        local ped = GetPlayerPed(-1)
+                        local ped = PlayerPedId()
                         local car = GetVehiclePedIsUsing(ped)
     
                         SetVehicleFixed(car)
@@ -1801,13 +1800,13 @@ Citizen.CreateThread(function()
                 end
                 RageUI.Button(_U('flip_veh'), nil, {}, true, {
                     onSelected = function()
-                        local player = GetPlayerPed(-1)
+                        local player = PlayerPedId()
                         local posdepmenu = GetEntityCoords(player)
                         local carTargetDep = GetClosestVehicle(posdepmenu['x'], posdepmenu['y'], posdepmenu['z'], 10.0,0,70)
                         if carTargetDep ~= nil then
                             platecarTargetDep = GetVehicleNumberPlateText(carTargetDep)
                         end
-                        local playerCoords = GetEntityCoords(GetPlayerPed(-1))
+                        local playerCoords = GetEntityCoords(PlayerPedId())
                         playerCoords = playerCoords + vector3(0, 2, 0)
     
                         SetEntityCoords(carTargetDep, playerCoords)
@@ -1817,12 +1816,12 @@ Citizen.CreateThread(function()
                 })
                 RageUI.Button(_U('give_admin_key'), nil, {}, true, {
                     onSelected = function()
-                        local vehicle = GetVehiclePedIsIn( GetPlayerPed(-1), false )
+                        local vehicle = GetVehiclePedIsIn( PlayerPedId(), false )
                         local plaque = GetVehicleNumberPlateText(vehicle)
     
     
-                        if GetPedInVehicleSeat( vehicle, -1 ) == GetPlayerPed(-1) then
-                            TriggerServerEvent('esx_vehiclelock:registerkey', plaque, GetPlayerServerId(closestPlayer))
+                        if GetPedInVehicleSeat( vehicle, -1 ) == PlayerPedId() then
+                            TriggerServerEvent('esx_vehiclelock:registerkey', plaque, GetPlayerServerId(PlayerId()))
                         else
                             Visual.Popup(_U('inside_veh'))
                         end
@@ -1841,7 +1840,7 @@ Citizen.CreateThread(function()
                 if playergroup == 'mod' or playergroup == 'admin' or playergroup == 'superadmin' or playergroup == 'owner' then
                     RageUI.Button(_U('refuel'), nil, {}, true, {
                         onSelected = function()
-                            local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1), false)
+                            local vehicle = GetVehiclePedIsIn(PlayerPedId(), false)
                             SetVehicleFuelLevel(vehicle, 100.0)
                         end
                     })
@@ -1987,12 +1986,12 @@ end
 
 RegisterNetEvent('Drago_menuperso:summon')
 AddEventHandler('Drago_menuperso:summon', function(coords)
-    SetEntityCoords(GetPlayerPed(-1), coords)
+    SetEntityCoords(PlayerPedId(), coords)
 end)
 
 RegisterNetEvent('Drago_menuperso:kill')
 AddEventHandler('Drago_menuperso:kill', function()
-    SetEntityHealth(GetPlayerPed(-1), 0)
+    SetEntityHealth(PlayerPedId(), 0)
 end)
 
 RegisterNetEvent('Drago_menuperso:alertReport')
@@ -2072,12 +2071,12 @@ function admin_no_clip(noclipState)
 end
 
 function getPosition()
-    local x,y,z = table.unpack(GetEntityCoords(GetPlayerPed(-1),true))
+    local x,y,z = table.unpack(GetEntityCoords(PlayerPedId(),true))
     return x,y,z
 end
 
 function getCamDirection()
-    local heading = GetGameplayCamRelativeHeading()+GetEntityHeading(GetPlayerPed(-1))
+    local heading = GetGameplayCamRelativeHeading()+GetEntityHeading(PlayerPedId())
     local pitch = GetGameplayCamRelativePitch()
 
     local x = -math.sin(heading*math.pi/180.0)
@@ -2183,12 +2182,12 @@ Citizen.CreateThread(function()
         Citizen.Wait(0)
         for _,id in ipairs(GetActivePlayers()) do
             if Menu.admin.showName then
-                if NetworkIsPlayerActive(id) and GetPlayerPed(id) ~= GetPlayerPed(-1) then
+                if NetworkIsPlayerActive(id) and GetPlayerPed(id) ~= PlayerPedId() then
                     ped = GetPlayerPed(id)
                     headId = CreateFakeMpGamerTag(ped, (GetPlayerServerId( id )..' - '..GetPlayerName( id )), 0, 0, "", 0)
                 end
             else
-                if NetworkIsPlayerActive(id) and GetPlayerPed(id) ~= GetPlayerPed(-1) then
+                if NetworkIsPlayerActive(id) and GetPlayerPed(id) ~= PlayerPedId() then
                     ped = GetPlayerPed(id)
                     headId = CreateFakeMpGamerTag(ped, '', 0, 0, "", 0)
                 end
