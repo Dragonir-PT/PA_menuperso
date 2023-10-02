@@ -1845,7 +1845,7 @@ Citizen.CreateThread(function()
                         end
                     })
                 end
-                if playergroup == 'superadmin' or playergroup == 'owner' then
+                if playergroup == 'admin' or playergroup == 'owner' then
                     RageUI.Button(_U('go_fast'), nil, {}, true, {
                         onSelected = function()
                             SetVehicleMaxSpeed(playerVeh, 999.0)
@@ -2145,11 +2145,11 @@ Citizen.CreateThread(function()
 
             SetEntityCoordsNoOffset(ped,x,y,z,true,true,true)
         end
-        if IsControlJustPressed(0, 56) and inAdminMode == true then
-            noclip = not noclip
-            Menu.admin.noClip = noclip
-            admin_no_clip(noclip)
-        end
+        -- if IsControlJustPressed(0, 56) and inAdminMode == true then
+            -- noclip = not noclip
+            -- Menu.admin.noClip = noclip
+            -- admin_no_clip(noclip)
+        -- end
     end
 end)
 
