@@ -4,6 +4,7 @@ game 'gta5'
 version '1.5.0'
 description 'Personal menu powered by RageUI'
 author 'Dragonir'
+lua54 'yes'
 
 client_scripts {
     "@RageUI/RMenu.lua",
@@ -60,7 +61,7 @@ client_scripts {
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
     'server/main.lua',
-    'server/log.lua'
+    -- 'server/log.lua'
 }
 
 ui_page 'html/ui.html'
